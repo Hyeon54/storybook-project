@@ -1,0 +1,4 @@
+<!-- 동화 생성 페이지 html -->
+ <template>
+    <h1> Create Story</h1>
+ </template>

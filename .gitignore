@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# 가상환경 - 가상환경 전체 무시
+venv/
+
+# 환경 변수 파일 - 	API 키 등 민감 정보 포함
+.env
+
+# 자격 증명 (API 키 등) - Google TTS 키 파일 등 자격 증명 보안 목적
+backend/credentials/
+# /backend/credentials/
+
+# VS Code 설정 파일 (개인 설정)
+.vscode/
+
+# Node.js (Vue 프로젝트)
+frontend/node_modules/ # - Vue 의존성 패키지들 (자동 설치되므로 제외해도 OK)
+frontend/dist/
+frontend/.env # -프론트엔드에서 환경변수 쓸 경우 대비
