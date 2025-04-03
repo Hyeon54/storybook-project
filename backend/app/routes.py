@@ -33,20 +33,37 @@ def generate_text():
     if not keyword:
         return {"error": "Keyword is required."}, 400
     
-    # GPT에게 전달할 프롬프트 메시지 구성
+    # GPT에게 전달할 프롬프트 메시지 구성 (Use 4 to 6 sentences total여기 추후 수정)
     prompt = f"""
-    The keyword : "{keyword}" is written in Korean.  
-Please translate the keyword into English first, and then write a story based on the translated word.
-Use A1 level English with short and simple sentences (5 to 7 words), in present tense.  
-The story should have a title .
-The story should have be around 20 to 80 words.
-The story should have 4 to 6 short sentences.
+    The keyword: "{keyword}" is written in Korean.  
+Please translate the keyword into English first and write a short story for children (A1 English level).
+
+The story should:
+- Use simple present tense.
+- Use very short and simple sentences (5 to 7 words).
+- Avoid classic fairy tale phrases like "Once upon a time".
+- Be clear and complete with a beginning, middle, and end.
+- Be fun and easy to understand for young learners.
+- Include a short and creative title.
+- Use 4 to 6 sentences total, around 20 to 80 words.
+
+Do not explain or label the translation.  
+Just return the story in the following format:
+
+Title: [story title]
+
+[Sentence 1]  
+[Sentence 2]  
+[Sentence 3]  
+[Sentence 4]  
+[...]
     """
 
     try:
         # OpenAI GPT API 호출 (ChatGPT 방식)
+        #model="gpt-4-turbo",  # 이렇게 바꾸면 GPT-4-turbo 사용
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # 사용할 모델 (openai==0.28은 OpenAI 라이브러리의 버전이고, "gpt-3.5-turbo"는 우리가 호출할 GPT 모델의 이름)
+            model="gpt-4-turbo",  # 사용할 모델 (openai==0.28은 OpenAI 라이브러리의 버전이고, "gpt-3.5-turbo"는 우리가 호출할 GPT 모델의 이름)
             messages=[
                 {"role": "system", "content": "You are a creative story writer for children."},
                 {"role": "user", "content": prompt}
