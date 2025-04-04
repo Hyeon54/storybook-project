@@ -88,26 +88,35 @@ def generate_image():
     import openai
     from config import OPENAI_API_KEY
 
+    # 1. API 키 등록
     openai.api_key = OPENAI_API_KEY
 
-    data = request.get_json(silent=True)
+    # 2. JSON 데이터 받아오기
+    data = request.get_json()
     print("[DEBUG] 받은 JSON 데이터:", data)
 
     if not data:
         return {"error": "No JSON received"}, 400
 
-    prompt = data.get("prompt")
+    prompt = data.get("prompt", "")
+
     if not prompt:
-        return {"error": "Prompt is required"}, 400
+        return {"error": "Prompt is required."}, 400
 
     try:
+        # 3. DALL·E API (이미지 생성용) 호출
         response = openai.Image.create(
-            model="dall-e-2",  # 또는 "dall-e-3"
-            prompt=prompt,
-            size="512x512",  # 또는 "1024x1024"
-            n=1
+            prompt=prompt,               # 생성할 이미지 설명
+            model="dall-e-3",            # 사용할 모델 (DALL·E 3)
+            size="1024x1024",            # 이미지 크기 (기본 1024x1024만 지원)
+            quality="standard",          # standard or hd (hd는 요금 더 높음)
+            n=1                          # 이미지 개수 (한번에 1장만 생성가능함함)
         )
+
+        # 4. 응답에서 이미지 URL 추출
         image_url = response["data"][0]["url"]
+
+        # 5. 클라이언트에 반환
         return {"image_url": image_url}
 
     except Exception as e:
