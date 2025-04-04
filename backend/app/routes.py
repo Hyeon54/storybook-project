@@ -1,8 +1,7 @@
 #기본 라우팅 설정
-from flask import Blueprint, jsonify
+from flask import request, Blueprint, jsonify # request(요청)을 받기 위한 Flask 함수
 import os
 
-from flask import request # request(요청)을 받기 위한 Flask 함수
 import openai #OpeinAI GPT API사용을 위한 라이브러리
 from config import OPENAI_API_KEY # config.py에서 환경변수(OPENAI_API_KEY키를 불러옴옴)
 
@@ -81,7 +80,35 @@ Title: [story title]
         # 에러 발생 시 메시지 반환
         return {"error": str(e)}, 500
     
-    ############################################################
-    
-    
-    
+############################################################
+# DALL·E 연동 (/generate/image)
+@main.route("/generate/image", methods=["POST"])
+def generate_image():
+    from flask import request
+    import openai
+    from config import OPENAI_API_KEY
+
+    openai.api_key = OPENAI_API_KEY
+
+    data = request.get_json(silent=True)
+    print("[DEBUG] 받은 JSON 데이터:", data)
+
+    if not data:
+        return {"error": "No JSON received"}, 400
+
+    prompt = data.get("prompt")
+    if not prompt:
+        return {"error": "Prompt is required"}, 400
+
+    try:
+        response = openai.Image.create(
+            model="dall-e-2",  # 또는 "dall-e-3"
+            prompt=prompt,
+            size="512x512",  # 또는 "1024x1024"
+            n=1
+        )
+        image_url = response["data"][0]["url"]
+        return {"image_url": image_url}
+
+    except Exception as e:
+        return {"error": str(e)}, 500
