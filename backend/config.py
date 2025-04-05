@@ -11,7 +11,7 @@ load_dotenv(dotenv_path)
 # OpenAI API 키
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 DALLE_API_KEY = os.getenv('DALLE_API_KEY')
-# GOOGLE_TTS_API_KEY = os.getenv('GOOGLE_TTS_API_KEY')
+GOOGLE_TTS_API_KEY = os.getenv('GOOGLE_TTS_API_KEY')
 
 # MySQL 설정값 예시
 MYSQL_CONFIG = {

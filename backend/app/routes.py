@@ -1,9 +1,11 @@
 #기본 라우팅 설정
 from flask import request, Blueprint, jsonify # request(요청)을 받기 위한 Flask 함수
 import os
-
 import openai #OpeinAI GPT API사용을 위한 라이브러리
 from config import OPENAI_API_KEY # config.py에서 환경변수(OPENAI_API_KEY키를 불러옴옴)
+
+import json ##
+from google.cloud import texttospeech ##
 
 
 openai.api_key = OPENAI_API_KEY # OpenAI 라이브러리에 API 키 등록
@@ -121,3 +123,57 @@ def generate_image():
 
     except Exception as e:
         return {"error": str(e)}, 500
+############################################################
+# Google Text-to-Speech(TTS)연동
+@main.route("/generate/audio", methods=["POST"])
+def generate_audio():
+    import os
+    import json
+    from flask import request, jsonify
+    from google.cloud import texttospeech
+    from config import GOOGLE_TTS_API_KEY
+
+    # 1. 환경변수로 서비스 계정 키 등록
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_TTS_API_KEY
+
+    # 2. 요청 데이터 받기
+    data = request.get_json()
+    text = data.get("text", "")
+
+    if not text:
+        return jsonify({"error": "Text is required."}), 400
+
+    try:
+        # 3. 클라이언트 생성
+        client = texttospeech.TextToSpeechClient()
+
+        # 4. 요청 구성
+        synthesis_input = texttospeech.SynthesisInput(text=text)
+
+        voice = texttospeech.VoiceSelectionParams(
+            language_code="en-US", name="en-US-Studio-O", ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
+        )
+
+        audio_config = texttospeech.AudioConfig(
+            audio_encoding=texttospeech.AudioEncoding.MP3
+        )
+
+        # 5. 음성 생성
+        response = client.synthesize_speech(
+            input=synthesis_input, voice=voice, audio_config=audio_config
+        )
+
+        # 6. 저장할 경로 설정
+        output_path = "static/audio_output.mp3"
+        os.makedirs("static", exist_ok=True)
+
+        with open(output_path, "wb") as out:
+            out.write(response.audio_content)
+
+        # 7. 프론트엔드에서 접근할 수 있도록 URL 반환
+        return jsonify({"audio_url": f"/static/audio_output.mp3"})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+####################################################33333

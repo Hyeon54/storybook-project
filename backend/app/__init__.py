@@ -3,11 +3,29 @@
 from flask import Flask
 from flask_cors import CORS
 from .routes import main
+import os
 
 def create_app():
-    app = Flask(__name__)
-    CORS(app)  # CORS 허용
+    app = Flask(
+        __name__,
+        static_folder="../static",       # ← backend/static 기준으로 맞추기
+        static_url_path="/static"
+    )
+    print("[DEBUG] 실제 static 폴더:", app.static_folder)
+    print("[DEBUG] static URL 경로:", app.static_url_path)
 
-    app.register_blueprint(main)  # 라우터 등록
-
+    CORS(app)
+    app.register_blueprint(main)
     return app
+
+
+# def create_app():
+#     base_dir = os.path.abspath(os.path.dirname(__file__))
+#     static_dir = os.path.join(base_dir, 'static')
+
+#     app = Flask(__name__, static_folder=static_dir)
+#     CORS(app)
+
+#     app.register_blueprint(main)
+
+#     return app
