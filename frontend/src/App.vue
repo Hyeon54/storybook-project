@@ -1,18 +1,17 @@
+<!-- App.vue 역할할 -->
+<!-- 레이아웃 뼈대 : 모든 페이지 위에 있는 header, nav, 로고 등 전체구조 -->
+<!-- RouterView : 현재 선택된 페이지 컴포넌트를 이곳에 렌더링 -->
+<!-- 전역 스타일: 공통 레이아웃을 위한 CSS 설정-->
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+// HelloWorld는 더 이상 필요 없으므로 import도 제거
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
     <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
       <nav>
         <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
       </nav>
     </div>
   </header>
@@ -21,14 +20,10 @@ import HelloWorld from './components/HelloWorld.vue'
 </template>
 
 <style scoped>
+/* 로고와 관련된 스타일 삭제해도 됨 */
 header {
   line-height: 1.5;
   max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
 }
 
 nav {
@@ -54,32 +49,5 @@ nav a {
 
 nav a:first-of-type {
   border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
 }
 </style>
