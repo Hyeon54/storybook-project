@@ -1,4 +1,5 @@
 <!-- 기본 메인 홈 html -->
+<!-- 기본 메인 홈 html -->
 <template>
     <div class="home">
       <h2>동화 생성 웹서비스</h2>
