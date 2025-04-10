@@ -223,7 +223,12 @@ def generate_all():
             ],
             temperature=0.8
         )
+        # GPT로부터 받은 이야기 텍스트
         story = gpt_response['choices'][0]['message']['content']
+
+        # 1. 받은 이야기 텍스트, 파일로 저장하기
+        with open("static/story.txt", "w", encoding="utf-8") as f:
+            f.write(story)
 
         # 2. 이미지 생성 (DALL·E 3 via GPT-4 Turbo)
         image_response = openai.Image.create(
@@ -266,4 +271,30 @@ def generate_all():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
+####################################################
+# get-latest 라우터 구현
+@main.route("/get-latest", methods=["GET"])
+def get_latest_story():
+    import os
+    from flask import jsonify
+
+    # 1. story, image, audio 파일 경로 지정
+    story_path = "static/story.txt"
+    image_url = "/static/image_output.png"
+    audio_url = "/static/audio_output.mp3"
+
+    # 2. story 텍스트 읽기 (없을 경우 기본값 반환)
+    if os.path.exists(story_path):
+        with open(story_path, "r", encoding="utf-8") as f:
+            story = f.read()
+    else:
+        story = "Title: No story available\nPlease generate a story first."
+
+    # 3. 응답 JSON 구성
+    return jsonify({
+        "story": story,
+        "image_url": image_url,
+        "audio_url": audio_url
+    })
+
