@@ -175,6 +175,8 @@ def generate_audio():
 def generate_all():
     import openai
     import os
+    import requests
+    import re
     from flask import request, jsonify
     from google.cloud import texttospeech
     from config import OPENAI_API_KEY, GOOGLE_TTS_API_KEY
@@ -183,7 +185,7 @@ def generate_all():
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_TTS_API_KEY
 
     data = request.get_json()
-    keyword = data.get("keyword", "")
+    keyword = data.get("keyword", "").strip()
 
     if not keyword:
         return jsonify({"error": "Keyword is required."}), 400
@@ -225,10 +227,13 @@ def generate_all():
         )
         # GPT로부터 받은 이야기 텍스트
         story = gpt_response['choices'][0]['message']['content']
+        story_lines = story.strip().split('\n')
+        title_line = story_lines[0]
+        story_title = title_line.replace("Title:", "").strip()
 
-        # 1. 받은 이야기 텍스트, 파일로 저장하기
-        with open("static/story.txt", "w", encoding="utf-8") as f:
-            f.write(story)
+        # 고유한 파일 ID 생성 (공백 제거 + 소문자)
+        # 안전한 파일 ID 만들기 (소문자, 알파벳+숫자만)
+        story_id = re.sub(r"[^a-zA-Z0-9]", "", story_title.lower())
 
         # 2. 이미지 생성 (DALL·E 3 via GPT-4 Turbo)
         image_response = openai.Image.create(
@@ -241,8 +246,9 @@ def generate_all():
         image_url = image_response["data"][0]["url"]
 
         # 이미지 다운로드
+        image_path = f"static/{story_id}.png"
         img_data = requests.get(image_url).content
-        with open("static/image_output.png", "wb") as f:
+        with open(image_path, "wb") as f:
             f.write(img_data)
 
         # 3. 음성 생성 (Google TTS)
@@ -253,20 +259,30 @@ def generate_all():
             name="en-US-Studio-O",
             ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
         )
-        audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3, speaking_rate=0.5)
+        audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3)
         audio_response = tts_client.synthesize_speech(
             input=synthesis_input,
             voice=voice,
             audio_config=audio_config
         )
 
-        with open("static/audio_output.mp3", "wb") as out:
+        # 음성 저장
+        audio_path = f"static/{story_id}.mp3"
+        with open(audio_path, "wb") as out:
             out.write(audio_response.audio_content)
 
+        # 텍스트 저장
+        text_path = f"static/{story_id}.txt"
+        with open(text_path, "w", encoding="utf-8") as f:
+            f.write(story)
+
+        # 응답 반환
         return jsonify({
+            "id": story_id,
+            "title": story_title,
             "story": story,
-            "image_url": "/static/image_output.png",
-            "audio_url": "/static/audio_output.mp3"
+            "image_url": f"/static/{story_id}.png",
+            "audio_url": f"/static/{story_id}.mp3"
         })
 
     except Exception as e:
@@ -298,3 +314,77 @@ def get_latest_story():
         "audio_url": audio_url
     })
 
+###########################################################
+# /stories API 만들기 : API역할 - static폴더 내에 저장된 동화 데이터목록(이미지 + 제목) 반환 역할
+@main.route("/stories", methods=["GET"])
+def get_stories():
+    import os
+
+    static_dir = "static"
+    story_files = []
+    for filename in os.listdir(static_dir):
+        if filename.endswith(".txt"):
+            base = filename.replace(".txt", "")
+            txt_path = os.path.join(static_dir, filename)
+            img_path = f"/static/{base}.png"
+
+            # 제목 추출 (첫 줄에 "Title: ~~~" 형식)
+            with open(txt_path, "r", encoding="utf-8") as f:
+                first_line = f.readline().strip()
+                if first_line.lower().startswith("title:"):
+                    title = first_line.replace("Title:", "").strip()
+                else:
+                    title = base
+
+            story_files.append({
+                "id": base,
+                "title": title,
+                "cover_url": img_path  # 이미지 경로
+            })
+
+    return jsonify({"stories": story_files})
+#########################################################
+# /stories/<id> API 설계
+@main.route("/stories/<story_id>", methods=["GET"])
+def get_story_by_id(story_id):
+    import os
+    from flask import jsonify
+
+    # 1. 경로 구성
+    base_dir = os.path.join(os.path.dirname(__file__), "..")  # routes.py 기준 상위 폴더
+    static_path = os.path.join(base_dir, "static")
+    txt_path = os.path.join(static_path, f"{story_id}.txt")
+    img_path = os.path.join(static_path, f"{story_id}.png")
+    audio_path = os.path.join(static_path, f"{story_id}.mp3")
+
+    # 2. 디버그 로그 출력
+    print(f"[DEBUG] 요청된 story_id: {story_id}")
+    print(f"[DEBUG] TXT 경로: {txt_path} | 존재함? {os.path.exists(txt_path)}")
+    print(f"[DEBUG] IMG 경로: {img_path} | 존재함? {os.path.exists(img_path)}")
+    print(f"[DEBUG] MP3 경로: {audio_path} | 존재함? {os.path.exists(audio_path)}")
+
+    # 3. 텍스트 파일 확인
+    if not os.path.exists(txt_path):
+        return jsonify({"error": "Story not found"}), 404
+
+    try:
+        with open(txt_path, "r", encoding="utf-8") as f:
+            story = f.read()
+
+        # 4. 제목 추출 (첫 줄이 "Title: ..." 형식이라고 가정)
+        lines = story.strip().split("\n")
+        title_line = lines[0] if lines else ""
+        title = title_line.replace("Title: ", "").strip()
+
+        # 5. 클라이언트에 반환
+        return jsonify({
+            "id": story_id,
+            "title": title,
+            "story": story,
+            "image_url": f"/static/{story_id}.png",
+            "audio_url": f"/static/{story_id}.mp3"
+        })
+
+    except Exception as e:
+        print("[ERROR]", str(e))
+        return jsonify({"error": "Failed to read story"}), 500
