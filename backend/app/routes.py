@@ -173,10 +173,7 @@ def generate_audio():
 # /generate 하나의 POST 요청으로 요청 (실제용)
 @main.route("/generate", methods=["POST"])
 def generate_all():
-    import openai
-    import os
-    import requests
-    import re
+    import os, re, openai, requests
     from flask import request, jsonify
     from google.cloud import texttospeech
     from config import OPENAI_API_KEY, GOOGLE_TTS_API_KEY
@@ -186,7 +183,6 @@ def generate_all():
 
     data = request.get_json()
     keyword = data.get("keyword", "").strip()
-
     if not keyword:
         return jsonify({"error": "Keyword is required."}), 400
 
@@ -198,26 +194,24 @@ def generate_all():
         Use A1 level English and write a short story for children.
 
         The story should:
-        - Use simple present tense.
-        - Use very short and simple sentences (5 to 7 words).
-        - Avoid classic fairy tale phrases like "Once upon a time".
-        - Be clear and complete with a beginning, middle, and end.
-        - Be fun and easy to understand for young learners.
-        - The story should have a short and creative title.
-        - Use 4 to 6 sentences total, around 20 to 80 words.
+        - Be exactly 9 short sentences
+        - Use very short sentences (5 to 7 words)
+        - Use simple present tense
+        - Be fun, positive, and easy to understand
+        - Avoid classic openings like 'Once upon a time'
+        - Include a short and creative title
+ 
+        Return the story in the following format:
 
-        Do not explain or label the translation.  
-        Just return the story in the following format:
-
+        Format:
         Title: [story title]
 
         [Sentence 1]  
         [Sentence 2]  
-        [Sentence 3]  
-        [Sentence 4]  
-        [...]
+        ...
+        [Sentence 9]
         """
-        gpt_response = openai.ChatCompletion.create(
+        response = openai.ChatCompletion.create(
             model="gpt-4-turbo",
             messages=[
                 {"role": "system", "content": "You are a creative story writer for children."},
@@ -226,68 +220,77 @@ def generate_all():
             temperature=0.8
         )
         # GPT로부터 받은 이야기 텍스트
-        story = gpt_response['choices'][0]['message']['content']
-        story_lines = story.strip().split('\n')
-        title_line = story_lines[0]
+        story = response['choices'][0]['message']['content'].strip()
+        lines = story.split("\n")
+        title_line = lines[0]
         story_title = title_line.replace("Title:", "").strip()
+        story_lines = [line.strip() for line in lines[1:] if line.strip()]
+        full_text = story.strip()
 
         # 고유한 파일 ID 생성 (공백 제거 + 소문자)
         # 안전한 파일 ID 만들기 (소문자, 알파벳+숫자만)
         story_id = re.sub(r"[^a-zA-Z0-9]", "", story_title.lower())
 
-        # 2. 이미지 생성 (DALL·E 3 via GPT-4 Turbo)
-        image_response = openai.Image.create(
-            prompt=f"An illustration of: {story}",
-            model="dall-e-3",
-            size="1024x1024",
-            quality="standard",
-            n=1
-        )
-        image_url = image_response["data"][0]["url"]
+        image_urls = []
+        audio_urls = []
+# for 0~9
+        for i in range(10):
+            if i == 0:
+                text_for_page = story_title
+                prompt_for_image = f"A children's book cover for: {story_title}"
+            else:
+                text_for_page = story_lines[i-1]
+                prompt_for_image = f"Illustration of: {text_for_page}"
 
-        # 이미지 다운로드
-        image_path = f"static/{story_id}.png"
-        img_data = requests.get(image_url).content
-        with open(image_path, "wb") as f:
-            f.write(img_data)
+            # 이미지 생성
+            img_response = openai.Image.create(
+                prompt=prompt_for_image,
+                model="dall-e-3",
+                size="1024x1024",
+                quality="standard",
+                n=1
+            )
+            img_url = img_response["data"][0]["url"]
+            img_path = f"static/{story_id}_{i}.png"
+            with open(img_path, "wb") as f:
+                f.write(requests.get(img_url).content)
+            image_urls.append(f"/static/{story_id}_{i}.png")
 
-        # 3. 음성 생성 (Google TTS)
-        tts_client = texttospeech.TextToSpeechClient()
-        synthesis_input = texttospeech.SynthesisInput(text=story)
-        voice = texttospeech.VoiceSelectionParams(
-            language_code="en-US",
-            name="en-US-Studio-O",
-            ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
-        )
-        audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3)
-        audio_response = tts_client.synthesize_speech(
-            input=synthesis_input,
-            voice=voice,
-            audio_config=audio_config
-        )
+            # 오디오 생성
+            tts_client = texttospeech.TextToSpeechClient()
+            synthesis_input = texttospeech.SynthesisInput(text=text_for_page)
+            voice = texttospeech.VoiceSelectionParams(
+                language_code="en-US",
+                name="en-US-Studio-O",
+                ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
+            )
+            audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3)
+            audio_response = tts_client.synthesize_speech(
+                input=synthesis_input,
+                voice=voice,
+                audio_config=audio_config
+            )
+            # 오디오오 저장
+            audio_path = f"static/{story_id}_{i}.mp3"
+            with open(audio_path, "wb") as out:
+                out.write(audio_response.audio_content)
+            audio_urls.append(f"/static/{story_id}_{i}.mp3")
 
-        # 음성 저장
-        audio_path = f"static/{story_id}.mp3"
-        with open(audio_path, "wb") as out:
-            out.write(audio_response.audio_content)
+            # 텍스트 저장
+        with open(f"static/{story_id}.txt", "w", encoding="utf-8") as f:
+            f.write(full_text)
 
-        # 텍스트 저장
-        text_path = f"static/{story_id}.txt"
-        with open(text_path, "w", encoding="utf-8") as f:
-            f.write(story)
-
-        # 응답 반환
         return jsonify({
             "id": story_id,
             "title": story_title,
-            "story": story,
-            "image_url": f"/static/{story_id}.png",
-            "audio_url": f"/static/{story_id}.mp3"
+            "lines": story_lines,
+            "image_urls": image_urls,
+            "audio_urls": audio_urls,
+            "story": full_text
         })
-
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 ####################################################
 # get-latest 라우터 구현
 @main.route("/get-latest", methods=["GET"])
@@ -322,11 +325,12 @@ def get_stories():
 
     static_dir = "static"
     story_files = []
+
     for filename in os.listdir(static_dir):
         if filename.endswith(".txt"):
             base = filename.replace(".txt", "")
             txt_path = os.path.join(static_dir, filename)
-            img_path = f"/static/{base}.png"
+            img_path = f"/static/{base}_0.png"
 
             # 제목 추출 (첫 줄에 "Title: ~~~" 형식)
             with open(txt_path, "r", encoding="utf-8") as f:
@@ -381,8 +385,8 @@ def get_story_by_id(story_id):
             "id": story_id,
             "title": title,
             "story": story,
-            "image_url": f"/static/{story_id}.png",
-            "audio_url": f"/static/{story_id}.mp3"
+            "image_url": f"/static/{story_id}_0.png",
+            "audio_url": f"/static/{story_id}_0.mp3"
         })
 
     except Exception as e:
