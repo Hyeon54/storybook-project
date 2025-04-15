@@ -354,41 +354,31 @@ def get_story_by_id(story_id):
     import os
     from flask import jsonify
 
-    # 1. 경로 구성
-    base_dir = os.path.join(os.path.dirname(__file__), "..")  # routes.py 기준 상위 폴더
+    base_dir = os.path.join(os.path.dirname(__file__), "..")
     static_path = os.path.join(base_dir, "static")
     txt_path = os.path.join(static_path, f"{story_id}.txt")
-    img_path = os.path.join(static_path, f"{story_id}.png")
-    audio_path = os.path.join(static_path, f"{story_id}.mp3")
 
-    # 2. 디버그 로그 출력
-    print(f"[DEBUG] 요청된 story_id: {story_id}")
-    print(f"[DEBUG] TXT 경로: {txt_path} | 존재함? {os.path.exists(txt_path)}")
-    print(f"[DEBUG] IMG 경로: {img_path} | 존재함? {os.path.exists(img_path)}")
-    print(f"[DEBUG] MP3 경로: {audio_path} | 존재함? {os.path.exists(audio_path)}")
-
-    # 3. 텍스트 파일 확인
     if not os.path.exists(txt_path):
         return jsonify({"error": "Story not found"}), 404
 
     try:
+        # 텍스트 줄단위로 가져오기
         with open(txt_path, "r", encoding="utf-8") as f:
-            story = f.read()
+            lines = [line.strip() for line in f.readlines() if line.strip()]
+        title = lines[0].replace("Title:", "").strip()
+        story_lines = lines[1:]  # 제목 제외한 9줄
 
-        # 4. 제목 추출 (첫 줄이 "Title: ..." 형식이라고 가정)
-        lines = story.strip().split("\n")
-        title_line = lines[0] if lines else ""
-        title = title_line.replace("Title: ", "").strip()
+        # 이미지, 오디오 경로 배열 만들기
+        image_urls = [f"/static/{story_id}_{i}.png" for i in range(10)]
+        audio_urls = [f"/static/{story_id}_{i}.mp3" for i in range(10)]
 
-        # 5. 클라이언트에 반환
         return jsonify({
             "id": story_id,
             "title": title,
-            "story": story,
-            "image_url": f"/static/{story_id}_0.png",
-            "audio_url": f"/static/{story_id}_0.mp3"
+            "lines": story_lines,
+            "image_urls": image_urls,
+            "audio_urls": audio_urls
         })
 
     except Exception as e:
-        print("[ERROR]", str(e))
-        return jsonify({"error": "Failed to read story"}), 500
+        return jsonify({"error": str(e)}), 500
