@@ -3,20 +3,22 @@
 <!-- RouterView : 현재 선택된 페이지 컴포넌트를 이곳에 렌더링 -->
 <!-- 전역 스타일: 공통 레이아웃을 위한 CSS 설정-->
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView } from "vue-router";
 // HelloWorld는 더 이상 필요 없으므로 import도 제거
 </script>
 
 <template>
-  <header>
-    <div class="wrapper">
-      <!-- <nav>
-        <RouterLink to="/">Home</RouterLink>
-      </nav> -->
-    </div>
-  </header>
+  <div>
+    <header>
+      <div class="wrapper">
+        <nav>
+          <RouterLink to="/">Home</RouterLink>
+        </nav>
+      </div>
+    </header>
 
-  <RouterView />
+    <RouterView />
+  </div>
 </template>
 
 <style scoped>
