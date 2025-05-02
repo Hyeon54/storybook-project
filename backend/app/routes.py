@@ -36,17 +36,34 @@ def generate_text():
     
     # GPT에게 전달할 프롬프트 메시지 구성 (Use 4 to 6 sentences total여기 추후 수정)
     prompt = f"""
-    The keyword: "{keyword}" is written in Korean.  
-Please translate the keyword into English first and write a short story for children (A1 English level).
+The keyword: "{keyword}" is written in Korean.  
+Please translate the keyword into English first.
 
-The story should:
-- Use simple present tense.
-- Use very short and simple sentences (5 to 7 words).
-- Avoid classic fairy tale phrases like "Once upon a time".
-- Be clear and complete with a beginning, middle, and end.
-- Be fun and easy to understand for young learners.
-- Include a short and creative title.
-- Use 4 to 6 sentences total, around 20 to 80 words.
+Then, randomly choose **one** of the following story structures to write a short story for young children (ages 3–6):  
+
+1. **Repetition Structure**  
+   - Use a repetitive sentence pattern (e.g., “I see...”, “Look at...”)  
+   - Keep the structure similar for the first 8 sentences  
+   - In the 9th sentence, add a fun twist or surprise  
+
+2. **Question + Answer Structure**  
+   - Use alternating questions and answers (e.g., “What is it?” / “It is a frog.”)  
+   - Keep the main character or object consistent  
+   - Make the 9th sentence unexpected or humorous  
+
+3. **Beginning-Middle-End (Story arc)**  
+   - Use a simple plot with one character  
+   - Include a beginning (situation), middle (event), and end (happy or funny ending)  
+   - Still use simple and short sentences (A1-level)  
+
+Story must:
+- Be exactly **9 short sentences**  
+- Use short sentences (6 to 12 words)
+- Use only **simple present tense**  
+- Avoid classic openings like 'Once upon a time'
+- Use **A1-level English**, very easy to understand  
+- Be fun, imaginative, and happy  
+- After the story, add a short description of the main character in English (1~2 sentences).
 
 Do not explain or label the translation.  
 Just return the story in the following format:
@@ -58,6 +75,10 @@ Title: [story title]
 [Sentence 3]  
 [Sentence 4]  
 [...]
+[Sentence 9]
+
+Main Character Description:
+[main character description here]
     """
 
     try:
@@ -187,30 +208,57 @@ def generate_all():
         return jsonify({"error": "Keyword is required."}), 400
 
     try:
-        # 1. GPT 이야기 생성
+        # 1. GPT 프롬프트 구성
         prompt = f"""
         The keyword: "{keyword}" is written in Korean.  
-        Please translate the keyword into English first, and write a story based on the translated word.
-        Use A1 level English and write a short story for children.
+        Please translate the keyword into English first.
 
-        The story should:
-        - Be exactly 9 short sentences
-        - Use very short sentences (5 to 7 words)
-        - Use simple present tense
-        - Be fun, positive, and easy to understand
+        Then, randomly choose **one** of the following story structures to write a short story for young children (ages 3-6):  
+
+        1. **Repetition Structure**  
+        - Use a repetitive sentence pattern (e.g., “I see...”, “Look at...”)  
+        - Keep the structure similar for the first 8 sentences  
+        - In the 9th sentence, add a fun twist or surprise  
+
+        2. **Question + Answer Structure**  
+        - Use alternating questions and answers (e.g., “What is it?” / “It is a frog.”)  
+        - Keep the main character or object consistent  
+        - Make the 9th sentence unexpected or humorous  
+
+        3. **Beginning-Middle-End (Story arc)**  
+        - Use a simple plot with one character  
+        - Include a beginning (situation), middle (event), and end (happy or funny ending)  
+        - Still use simple and short sentences (A1-level)  
+
+        Story must:
+        - Be exactly **9 short sentences**  
+        - Use short sentences (6 to 12 words)
+        - Use only **simple present tense**  
         - Avoid classic openings like 'Once upon a time'
-        - Include a short and creative title
- 
-        Return the story in the following format:
+        - Use **A1-level English**, very easy to understand  
+        - Be fun, imaginative, and happy  
+        - After the story, add a short description of the main character (1~2 sentences)
+
+        For each English sentence, also add its Korean translation.  
+        
+        Do not explain your choice or translation.
+        Only return the story in the following format.
 
         Format:
         Title: [story title]
 
-        [Sentence 1]  
-        [Sentence 2]  
+        EN: [English sentence 1]  
+        KO: [Korean sentence 1]  
         ...
-        [Sentence 9]
+        EN: [English sentence 9]  
+        KO: [Korean sentence 9]  
+
+        Main Character Description:
+        [main character description here]
+
         """
+
+        # 2. GPT 호출
         response = openai.ChatCompletion.create(
             model="gpt-4-turbo",
             messages=[
@@ -219,30 +267,51 @@ def generate_all():
             ],
             temperature=0.8
         )
-        # GPT로부터 받은 이야기 텍스트
+
+        # 3. 응답 파싱
         story = response['choices'][0]['message']['content'].strip()
         lines = story.split("\n")
-        title_line = lines[0]
+        title_line = lines[0].strip()
         story_title = title_line.replace("Title:", "").strip()
-        story_lines = [line.strip() for line in lines[1:] if line.strip()]
-        full_text = story.strip()
 
-        # 고유한 파일 ID 생성 (공백 제거 + 소문자)
-        # 안전한 파일 ID 만들기 (소문자, 알파벳+숫자만)
+        english_lines = []
+        korean_lines = []
+        main_character_description = ""
+
+        for idx, line in enumerate(lines[1:], 1):
+            line = line.strip()
+            if line.startswith("EN:"):
+                english_lines.append(line.replace("EN:", "").strip())
+            elif line.startswith("KO:"):
+                korean_lines.append(line.replace("KO:", "").strip())
+            elif line.startswith("Main Character Description:"):
+                if idx + 1 < len(lines):
+                    main_character_description = lines[idx + 1].strip()
+                break
+
+        if not main_character_description:
+            main_character_description = "a cute character appropriate for a children's book"
+
+        # 4. 파일 ID 생성
         story_id = re.sub(r"[^a-zA-Z0-9]", "", story_title.lower())
 
         image_urls = []
         audio_urls = []
-# for 0~9
+
+        # 5. 스타일 고정 + 텍스트 제거 지시 추가
+        style_keyword = "in digital watercolor style, children's book illustration"
+        no_text_clause = "without any text, lettering, or words in the image"
+
+        # 6. 페이지별 생성
         for i in range(10):
             if i == 0:
                 text_for_page = story_title
-                prompt_for_image = f"A children's book cover for: {story_title}"
+                prompt_for_image = f"A children's book cover for: {story_title}, featuring {main_character_description}, {style_keyword}, {no_text_clause}"
             else:
-                text_for_page = story_lines[i-1]
-                prompt_for_image = f"Illustration of: {text_for_page}"
+                text_for_page = english_lines[i-1]
+                prompt_for_image = f"Illustration of: {text_for_page}, featuring {main_character_description}, {style_keyword}, {no_text_clause}"
 
-            # 이미지 생성
+            # 이미지 생성 (DALL·E)
             img_response = openai.Image.create(
                 prompt=prompt_for_image,
                 model="dall-e-3",
@@ -256,7 +325,7 @@ def generate_all():
                 f.write(requests.get(img_url).content)
             image_urls.append(f"/static/{story_id}_{i}.png")
 
-            # 오디오 생성
+            # 오디오 생성 (Google TTS)
             tts_client = texttospeech.TextToSpeechClient()
             synthesis_input = texttospeech.SynthesisInput(text=text_for_page)
             voice = texttospeech.VoiceSelectionParams(
@@ -270,25 +339,28 @@ def generate_all():
                 voice=voice,
                 audio_config=audio_config
             )
-            # 오디오오 저장
             audio_path = f"static/{story_id}_{i}.mp3"
             with open(audio_path, "wb") as out:
                 out.write(audio_response.audio_content)
             audio_urls.append(f"/static/{story_id}_{i}.mp3")
 
-            # 텍스트 저장
+        # 7. 전체 텍스트 저장 (EN/KO 포함)
         with open(f"static/{story_id}.txt", "w", encoding="utf-8") as f:
-            f.write(full_text)
+            f.write(f"Title: {story_title}\n\n")
+            for en, ko in zip(english_lines, korean_lines):
+                f.write(f"EN: {en}\nKO: {ko}\n")
 
+        # 8. 응답 반환
         return jsonify({
             "id": story_id,
             "title": story_title,
-            "lines": story_lines,
+            "lines": english_lines,
+            "korean_lines": korean_lines,
             "image_urls": image_urls,
             "audio_urls": audio_urls,
-            "story": full_text
+            "main_character_description": main_character_description
         })
-    
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 ####################################################
@@ -353,32 +425,52 @@ def get_stories():
 def get_story_by_id(story_id):
     import os
     from flask import jsonify
-
+    
+    # 1. 경로 구성
     base_dir = os.path.join(os.path.dirname(__file__), "..")
     static_path = os.path.join(base_dir, "static")
     txt_path = os.path.join(static_path, f"{story_id}.txt")
+
+    # 2. 디버깅 출력
+    print(f"[DEBUG] 요청된 story_id: {story_id}")
+    print(f"[DEBUG] TXT 경로: {txt_path} | 존재함? {os.path.exists(txt_path)}")
 
     if not os.path.exists(txt_path):
         return jsonify({"error": "Story not found"}), 404
 
     try:
-        # 텍스트 줄단위로 가져오기
+        # 3. 텍스트 파일 읽기
         with open(txt_path, "r", encoding="utf-8") as f:
-            lines = [line.strip() for line in f.readlines() if line.strip()]
-        title = lines[0].replace("Title:", "").strip()
-        story_lines = lines[1:]  # 제목 제외한 9줄
+            content = f.read()
 
-        # 이미지, 오디오 경로 배열 만들기
+        lines = content.strip().split("\n")
+        title_line = lines[0].strip()
+        title = title_line.replace("Title:", "").strip()
+
+        english_lines = []
+        korean_lines = []
+
+        for line in lines[1:]:
+            line = line.strip()
+            if line.startswith("EN:"):
+                english_lines.append(line.replace("EN:", "").strip())
+            elif line.startswith("KO:"):
+                korean_lines.append(line.replace("KO:", "").strip())
+
+        # 4. 이미지/오디오 URL 리스트 구성
         image_urls = [f"/static/{story_id}_{i}.png" for i in range(10)]
         audio_urls = [f"/static/{story_id}_{i}.mp3" for i in range(10)]
 
+        # 5. 응답 반환
         return jsonify({
             "id": story_id,
             "title": title,
-            "lines": story_lines,
+            "english_lines": english_lines,
+            "korean_lines": korean_lines,
             "image_urls": image_urls,
             "audio_urls": audio_urls
         })
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print("[ERROR]", str(e))
+        return jsonify({"error": "Failed to read story"}), 500

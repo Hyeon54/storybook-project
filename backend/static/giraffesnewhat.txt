@@ -1,0 +1,20 @@
+Title: Giraffe's New Hat
+
+EN: Giraffe wakes up in the morning.
+KO: 기린은 아침에 일어난다.
+EN: Giraffe finds a funny hat.
+KO: 기린은 재미있는 모자를 찾는다.
+EN: Giraffe puts on the hat.
+KO: 기린은 모자를 쓴다.
+EN: Giraffe walks to the river.
+KO: 기린은 강으로 걸어간다.
+EN: Giraffe sees Monkey.
+KO: 기린은 원숭이를 본다.
+EN: Monkey laughs at the hat.
+KO: 원숭이는 모자를 보고 웃는다.
+EN: Giraffe feels silly.
+KO: 기린은 우스꽝스럽게 느껴진다.
+EN: Giraffe and Monkey play together.
+KO: 기린과 원숭이는 함께 놀아요.
+EN: Now, the hat makes them happy.
+KO: 이제, 모자는 그들을 행복하게 만든다.
