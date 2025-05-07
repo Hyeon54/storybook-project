@@ -1,4 +1,4 @@
-<!-- 동화 생성 페이지 html -->
+<!-- 동화 생성 페이지 htmlll -->
 <template>
    <div class="create-page">
      <h2>동화 키워드를 입력해주세요</h2>
