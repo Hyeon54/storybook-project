@@ -7,7 +7,7 @@ git commit -m "제목" -m "뭐뭘ㄹ 수정한"
 git push origin master
 
 git pull origin master
---> 
+-->
 <!-- 원격으로 수정되는지 테스트 -->
 <template>
   <div class="home">
@@ -236,4 +236,3 @@ onMounted(() => {
   margin-top: 20px; /* 아래쪽 여백 추가 */
 }
 </style>
-<!-- 주석 테스트 -->
