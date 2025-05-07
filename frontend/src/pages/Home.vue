@@ -8,6 +8,7 @@ git push origin master
 
 git pull origin master
 --> 
+<!-- 원격으로 수정되는지 테스트 -->
 <template>
   <div class="home">
     <!-- 오른쪽 요정 애니메이션 -->
