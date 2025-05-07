@@ -7,8 +7,7 @@ git commit -m "제목" -m "뭐뭘ㄹ 수정한"
 git push origin master
 
 git pull origin master
--->
- <!-- 주석테스트트 -->
+--> 
 <template>
   <div class="home">
     <!-- 오른쪽 요정 애니메이션 -->
@@ -236,3 +235,4 @@ onMounted(() => {
   margin-top: 20px; /* 아래쪽 여백 추가 */
 }
 </style>
+<!-- 주석 테스트 -->
