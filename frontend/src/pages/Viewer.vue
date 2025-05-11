@@ -1,17 +1,20 @@
 <template>
   <div class="viewer">
-    <!-- 0번 페이지: 제목만 표시 -->
-    <h1 v-if="currentPage === 0">{{ title }}</h1>
+    <!-- 공통: 이미지 출력 -->
+    <img :src="`http://127.0.0.1:5000${imageUrls[currentPage]}`" alt="동화 이미지" class="page-image" />
 
-    <!-- 1~9번 페이지 -->
-    <div v-else>
-      <img :src="`http://127.0.0.1:5000${imageUrls[currentPage]}`" alt="동화 이미지" class="page-image" />
-      <p class="english">{{ englishLines[currentPage - 1] }}</p>
-      <p class="korean">{{ koreanLines[currentPage - 1] }}</p>
+    <!-- 0번 페이지: 제목 / 1~9번 페이지: 텍스트 -->
+    <div class="text-block">
+      <h1 v-if="currentPage === 0">{{ title }}</h1>
+      <div v-else>
+        <p class="english">{{ englishLines[currentPage - 1] }}</p>
+        <p class="korean">{{ koreanLines[currentPage - 1] }}</p>
+      </div>
+
       <button @click="playAudio">🔊 오디오 듣기</button>
     </div>
 
-    <!-- 페이지 넘김 컨트롤 -->
+    <!-- 페이지 컨트롤 -->
     <div class="controls">
       <button @click="prevPage" :disabled="currentPage === 0">⬅ 이전</button>
       <button @click="nextPage" :disabled="currentPage === 9">다음 ➡</button>

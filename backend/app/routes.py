@@ -65,6 +65,12 @@ Story must:
 - Be fun, imaginative, and happy  
 - After the story, add a short description of the main character in English (1~2 sentences).
 
+Character Guidelines:
+- The main character can be a human, animal, or nature-inspired object.
+- Do not use specific names like Tom or Anna.
+- Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).
+- Alternatively, use “I” or “you” as the narrator.
+
 Do not explain or label the translation.  
 Just return the story in the following format:
 
@@ -230,6 +236,12 @@ def generate_all():
         - Include a beginning (situation), middle (event), and end (happy or funny ending)  
         - Still use simple and short sentences (A1-level)  
 
+        Character Guidelines:
+        - The main character can be a human, animal, or nature-inspired object.
+        - Do not use specific names like Tom or Anna.
+        - Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).
+        - Alternatively, use “I” or “you” as the narrator.
+
         Story must:
         - Be exactly **9 short sentences**  
         - Use short sentences (6 to 12 words)
@@ -239,7 +251,7 @@ def generate_all():
         - Be fun, imaginative, and happy  
         - After the story, add a short description of the main character (1~2 sentences)
 
-        For each English sentence, also add its Korean translation.  
+        For each English sentence, also add its Korean translation.(Each Korean sentence must be translated into polite informal speech ("해요체"))
         
         Do not explain your choice or translation.
         Only return the story in the following format.
@@ -300,7 +312,7 @@ def generate_all():
 
         # 5. 스타일 고정 + 텍스트 제거 지시 추가
         style_keyword = "in digital watercolor style, children's book illustration"
-        no_text_clause = "without any text, lettering, or words in the image"
+        no_text_clause = "Do not include any text, letters, numbers, captions, or written words in the image."
 
         # 6. 페이지별 생성
         for i in range(10):
