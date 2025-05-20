@@ -1,238 +1,223 @@
-<!--cd storybook-project/frontend
-npm install   
-npm run dev
-지금 겪고 있는 문제: 효과음이 처음엔 나오지 않음.
-git add .
-git commit -m "제목" -m "뭐뭘ㄹ 수정한"
-git push origin master
-
-git pull origin master
--->
-<!-- 원격으로 수정되는지 테스트 -->
 <template>
   <div class="home">
-    <!-- 오른쪽 요정 애니메이션 -->
-    <img src="@/assets/fairy.gif" alt="요정" class="fairy" />
+    <!-- 🌟 Header -->
+    <header class="flex justify-between items-center p-6 md:px-12 text-lg">
+      <router-link to="/" class="flex items-center space-x-2 outline-none focus:outline-none focus-visible:outline-none">
+        <img src="@/assets/fairy.png" alt="Logo" class="w-10 h-10" />
+        <h1 class="text-2xl font-jua text-green-800 drop-shadow-[2px_2px_0px_rgba(255,255,255,0.9)]">잉글리숲</h1>
+      </router-link>
+      <nav class="space-x-6 text-green-700">
+        <router-link to="/create" class="hover:text-green-500 transition outline-none focus:outline-none focus-visible:outline-none"
+          >동화 만들기</router-link
+        >
+        <router-link to="/library" class="hover:text-green-500 transition outline-none focus:outline-none focus-visible:outline-none"
+          >내 서재 보기</router-link
+        >
+      </nav>
+    </header>
 
-    <!-- 부엉이 말풍선 (타이핑 효과 표시) -->
-    <div class="speech-bubble">
-      <span ref="typingText"></span>
-    </div>
+    <!-- 🌄 Hero Section -->
+    <section
+      class="relative w-full h-[90vh] bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center text-center px-4"
+      :style="{ backgroundImage: `url(${heroBg})` }"
+    >
+      <!-- ✨ 부제목 -->
+      <p class="text-xl md:text-2xl font-jua text-green-800 drop-shadow-[1px_1px_0px_rgba(255,255,255,0.9)] mb-4 z-20">
+        ✨AI와 함께하는 어린이 영어동화 숲✨
+      </p>
 
-    <!-- 메인 콘텐츠: 로고 + 설명 + 버튼 -->
-    <div class="content">
-      <h2 class="subtitle">✨어린이를 위한 AI 영어동화✨</h2>
-      <h1 class="title sparkle-text">잉글리숲</h1>
-      <div class="buttons">
-        <button @click="goCreate" @mouseenter="playHoverSound" class="btn orange pulse">🌟 동화 만들기</button>
-        <button @click="goLibrary" @mouseenter="playHoverSound" class="btn green pulse">📚 서재로 가기</button>
+      <!-- 타이틀 -->
+      <h1 class="flex space-x-1 text-[80px] md:text-[100px] font-jua text-green-800 drop-shadow-[4px_4px_0px_rgba(255,255,255,0.9)] z-20">
+        <span
+          v-for="(char, index) in titleText"
+          :key="index"
+          class="inline-block animate-bounce-up"
+          :style="{ animationDelay: `${index * 0.1}s` }"
+        >
+          {{ char }}
+        </span>
+      </h1>
+
+      <!-- 🧚‍♀️ 요정 -->
+      <img src="@/assets/fairy.png" class="absolute bottom-[100px] left-[250px] w-[400px] animate-float z-10" />
+
+      <!-- 🎮 버튼 -->
+      <div class="mt-10 flex space-x-6 z-20">
+        <router-link to="/create">
+          <button @mouseover="playClick" class="game-button">동화 만들기</button>
+        </router-link>
+        <router-link to="/library">
+          <button @mouseover="playClick" class="game-button">서재로 가기</button>
+        </router-link>
       </div>
-    </div>
-  </div>
 
-  <!-- 풋터 박스 -->
-  <footer class="footer">ⓒ 2025 EnglishForest Team. All rights reserved.</footer>
+      <!-- 📚 책 & 토끼 -->
+      <img
+        src="@/assets/storybook.png"
+        alt="storybook"
+        class="absolute bottom-[-50px] right-[700px] w-[300px] transition duration-300 ease-in-out hover:animate-wiggle"
+        @mouseover="playHover"
+      />
+      <img
+        src="@/assets/rabbit.png"
+        alt="rabbit"
+        class="absolute bottom-[30px] right-[100px] w-[300px] hover:animate-bounce"
+        @mouseover="playJump"
+      />
+    </section>
+
+    <!-- 📚 사용법 소개 -->
+    <section class="bg-white py-16 px-4 text-center">
+      <h3 class="text-2xl md:text-3xl font-bold mb-10 text-green-800">잉글리숲은 이렇게 사용해요!</h3>
+      <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto text-lg">
+        <div class="card">
+          <p class="text-4xl mb-3">✏️</p>
+          <p class="font-semibold">키워드를 입력해요</p>
+          <p class="text-sm text-gray-600">“토끼”, “숲속 친구들” 같은 말도 좋아요!</p>
+        </div>
+        <div class="card">
+          <p class="text-4xl mb-3">🧚‍♀️✨</p>
+          <p class="font-semibold">요정이 동화를 만들어줘요</p>
+          <p class="text-sm text-gray-600">마법처럼 동화가 짠! 하고 나와요</p>
+        </div>
+        <div class="card">
+          <p class="text-4xl mb-3">📖🌳</p>
+          <p class="font-semibold">내 서재에서 읽어요</p>
+          <p class="text-sm text-gray-600">동화는 자동 저장돼요</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ✨ 특징 소개 -->
+    <section class="bg-green-50 py-16 px-4 text-center">
+      <h3 class="text-2xl md:text-3xl font-bold mb-10 text-green-800">잉글리숲은 이런 점이 특별해요!</h3>
+      <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto text-lg">
+        <div class="card">
+          <p class="text-4xl mb-3">🤖</p>
+          <p class="font-semibold">AI 요정이 직접 써줘요</p>
+          <p class="text-sm text-gray-600">내가 고른 키워드로 동화를 만들어줘요</p>
+        </div>
+        <div class="card">
+          <p class="text-4xl mb-3">🧒</p>
+          <p class="font-semibold">어린이 눈높이에 딱 맞춰요</p>
+          <p class="text-sm text-gray-600">쉬운 단어, 짧은 문장으로 구성돼요</p>
+        </div>
+        <div class="card">
+          <p class="text-4xl mb-3">🌈</p>
+          <p class="font-semibold">내 동화는 내 서재에 저장돼요</p>
+          <p class="text-sm text-gray-600">언제든 다시 볼 수 있어요</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🧵 푸터 -->
+    <footer class="bg-green-800 text-white text-base py-8 px-4 text-center">
+      <p class="font-semibold">AI와 함께하는 어린이 영어 동화숲</p>
+      <p class="mt-2">© 2025 서울여자대학교 프로젝트종합설계I 03분반 잉글리숲팀</p>
+    </footer>
+  </div>
 </template>
 
 <script setup>
-import { useRouter } from "vue-router";
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
+import heroBg from "@/assets/hero-background.png";
 
-const router = useRouter();
-const goCreate = () => router.push("/create");
-const goLibrary = () => router.push("/library");
-
-// hoverAudio는 처음 마우스 올릴 때 생성
-let hoverAudio = null;
-const playHoverSound = () => {
-  if (!hoverAudio) {
-    hoverAudio = new Audio("/sounds/hover.mp3");
-  }
-  hoverAudio.currentTime = 0;
-  hoverAudio.play();
+const clickSound = new Audio("/sounds/click.mp3");
+const playClick = () => {
+  clickSound.currentTime = 0;
+  clickSound.play();
 };
 
-// 말풍선 타이핑 효과
-const typingText = ref(null);
-const message = "안녕! 잉글리숲에 온 걸 환영해 🦉";
-let index = 0;
+const hoverSound = new Audio("/sounds/hover.mp3");
+const playHover = () => {
+  hoverSound.currentTime = 0;
+  hoverSound.play();
+};
 
-onMounted(() => {
-  const interval = setInterval(() => {
-    if (typingText.value && index < message.length) {
-      typingText.value.textContent += message[index]; // 띄어쓰기 포함해서 출력
-      index++;
-    } else {
-      clearInterval(interval);
-    }
-  }, 100);
-});
+const jumpSound = new Audio("/sounds/jump.mp3");
+const playJump = () => {
+  jumpSound.currentTime = 0;
+  jumpSound.play();
+};
+
+const titleText = ref("잉글리숲".split(""));
 </script>
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Jua&display=swap");
 
-/* 메인 홈 전체 스타일 */
-.home {
-  position: relative;
-  background-image: url("@/assets/main-bg.png");
-  background-size: cover;
-  background-position: center;
-  height: 100vh;
-  font-family: "Jua", sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  animation: fadeIn 2s ease;
-  overflow: visible; /* overflow: hidden에서 visible로 변경 */
+.card {
+  @apply bg-white rounded-2xl shadow-md p-6;
 }
 
-/* 요정 애니메이션 */
-.fairy {
-  position: absolute;
-  bottom: -40px;
-  right: 0;
-  width: 900px;
-  z-index: 1;
-  animation: float 1000s ease-in-out infinite;
-  pointer-events: none;
-}
-
-/* 부엉이 말풍선 스타일 */
-.speech-bubble {
-  position: absolute;
-  bottom: 410px;
-  right: 130px;
-  background: #fffef0;
-  border: 2px dashed #ffc107;
-  border-radius: 20px;
-  padding: 1rem 1.4rem;
-  max-width: 180px;
-  font-size: 1rem;
-  color: #4b3f2f;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15);
-  z-index: 2;
-  font-family: "Jua", sans-serif;
-}
-
-/* 말풍선 꼬리 */
-.speech-bubble::after {
-  content: "";
-  position: absolute;
-  bottom: -20px;
-  right: 30px;
-  border-width: 10px 10px 0;
-  border-style: solid;
-  border-color: #fffef0 transparent transparent transparent;
-}
-
-/* 콘텐츠 영역 */
-.content {
-  padding: 2rem;
-  border-radius: 20px;
-}
-
-/* 부제목 */
-.subtitle {
-  font-size: 1.3rem;
-  color: #3c4a3e;
-  margin-bottom: 0.7rem;
-}
-
-/* 메인 타이틀 */
-.title {
-  font-size: 3.8rem;
-  color: #2b5d44;
-  margin-bottom: 1.5rem;
-  text-shadow: 3px 3px 0 #fff, 5px 5px 8px rgba(0, 0, 0, 0.2);
-  border: 5px dotted rgba(79, 183, 109, 0.5);
-  padding: 0.5em 1em;
-  border-radius: 25px;
-  background-color: rgba(255, 255, 255, 0.45);
-  display: inline-block;
-}
-
-/* 버튼 그룹 */
-.buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-/* 버튼 기본 스타일 */
-.btn {
-  font-size: 1.2rem;
-  padding: 0.7rem 2rem;
-  width: 200px;
-  border: none;
-  border-radius: 999px;
-  cursor: pointer;
-  font-family: "Jua", sans-serif;
-  transition: all 0.25s ease;
-  color: white;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-}
-
-/* 주황색 버튼 */
-.btn.orange {
-  background-image: linear-gradient(to bottom, #fda251, #f58a1f);
-}
-
-/* 초록색 버튼 */
-.btn.green {
-  background-image: linear-gradient(to bottom, #4caf50, #2b8138);
-}
-
-/* 버튼 호버 효과 */
-.btn:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-  filter: brightness(1.05);
-}
-
-/* 버튼 박동 효과 */
-.pulse {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
+/* 애니메이션 */
+@keyframes float {
   0% {
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    transform: translateY(0);
   }
-  70% {
-    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  50% {
+    transform: translateY(-10px);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-  }
-}
-
-/* 페이드 인 애니메이션 */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* 풋터 스타일 */
-.footer {
-  position: relative; /* absolute에서 relative로 변경 */
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.7);
-  text-align: center;
-  padding: 0.8rem;
-  font-size: 0.9rem;
-  color: #555;
-  border-top: 1px solid #ddd;
+@keyframes bounceUp {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.8);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(3deg);
+  }
+  75% {
+    transform: rotate(-3deg);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-bounce-up {
+  animation: bounceUp 2s ease-out both;
+}
+
+.hover\:animate-wiggle:hover {
+  animation: wiggle 0.4s ease-in-out;
+}
+
+.font-jua {
   font-family: "Jua", sans-serif;
-  margin-top: 20px; /* 아래쪽 여백 추가 */
+}
+
+/* 🎮 게임 버튼 */
+.game-button {
+  @apply text-xl font-jua px-10 py-4 rounded-full shadow-lg transition duration-300 transform hover:scale-110;
+  color: #3b2f25;
+  background-color: #facc15;
+  border: 4px solid #fff3b0;
+  box-shadow: 0 6px 0 #c09a00, 0 8px 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.game-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 #c09a00;
 }
 </style>

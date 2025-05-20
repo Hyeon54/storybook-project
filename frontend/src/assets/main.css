@@ -1,12 +1,13 @@
-@import './base.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* 전체 앱 기본 스타일 */
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
   font-weight: normal;
 }
 
+/* 링크나 강조 텍스트 색상 */
 a,
 .green {
   text-decoration: none;
@@ -15,21 +16,9 @@ a,
   padding: 3px;
 }
 
+/* 링크 hover 시 배경 색상 */
 @media (hover: hover) {
   a:hover {
     background-color: hsla(160, 100%, 37%, 0.2);
-  }
-}
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
   }
 }
