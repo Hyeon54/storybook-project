@@ -36,55 +36,62 @@ def generate_text():
     
     # GPT에게 전달할 프롬프트 메시지 구성 (Use 4 to 6 sentences total여기 추후 수정)
     prompt = f"""
-The keyword: "{keyword}" is written in Korean.  
-Please translate the keyword into English first.
+    Please translate this Korean word into English and use it as the topic: "{keyword}"
 
-Then, randomly choose **one** of the following story structures to write a short story for young children (ages 3–6):  
+    Write a short story for young children (ages 3–6).  
+    Then, randomly choose **one** of the following three story structures.  
+    Make sure each structure has an **equal chance of being selected (1/3 probability each)**.  
+    Avoid always choosing the same type.
 
-1. **Repetition Structure**  
-   - Use a repetitive sentence pattern (e.g., “I see...”, “Look at...”)  
-   - Keep the structure similar for the first 8 sentences  
-   - In the 9th sentence, add a fun twist or surprise  
+    1. **Repetition Structure**  
+    - Use a repetitive sentence pattern.  
+    - You may choose patterns like “Wow, look at...”, “It is...”, “Here is...”, “I like...”, or others.  
+    - Avoid using the same pattern every time.  
+    - Keep the structure similar for the first 8 sentences.  
+    - In the 9th sentence, add a fun twist or surprise.  
 
-2. **Question + Answer Structure**  
-   - Use alternating questions and answers (e.g., “What is it?” / “It is a frog.”)  
-   - Keep the main character or object consistent  
-   - Make the 9th sentence unexpected or humorous  
+    2. **Question + Answer Structure**  
+    - Use alternating questions and answers (e.g., “What is it?” / “It is a frog.”)  
+    - Keep the main character or object consistent.  
+    - Make the 9th sentence unexpected or humorous.  
 
-3. **Beginning-Middle-End (Story arc)**  
-   - Use a simple plot with one character  
-   - Include a beginning (situation), middle (event), and end (happy or funny ending)  
-   - Still use simple and short sentences (A1-level)  
+    3. **Beginning-Middle-End (Story arc)**  
+    - Use a simple plot with one character.  
+    - Include a beginning (situation), middle (event), and end (happy or funny ending).  
+    - Still use simple and short sentences (A1-level).  
 
-Story must:
-- Be exactly **9 short sentences**  
-- Use short sentences (6 to 12 words)
-- Use only **simple present tense**  
-- Avoid classic openings like 'Once upon a time'
-- Use **A1-level English**, very easy to understand  
-- Be fun, imaginative, and happy  
-- After the story, add a short description of the main character in English (1~2 sentences).
+    Character Guidelines:  
+    - The main character can be a human, animal, or nature-inspired object.  
+    - Do not use specific names like Tom or Anna.  
+    - Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).  
+    - Alternatively, use “I” or “you” as the narrator.  
 
-Character Guidelines:
-- The main character can be a human, animal, or nature-inspired object.
-- Do not use specific names like Tom or Anna.
-- Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).
-- Alternatively, use “I” or “you” as the narrator.
+    Story Requirements:  
+    - Be exactly **9 short sentences**.  
+    - Use short sentences (6 to 12 words).  
+    - Use only **simple present tense**.  
+    - Avoid classic openings like 'Once upon a time'.  
+    - Use **A1-level English**, very easy to understand.  
+    - Be fun, imaginative, and happy.  
+    - After the story, add a short description of the main character (1–2 sentences).  
 
-Do not explain or label the translation.  
-Just return the story in the following format:
+    For each English sentence, also add its Korean translation.  
+    Each Korean sentence must be translated into polite informal speech ("해요체").
 
-Title: [story title]
+    Do not explain your choice or translation.  
+    Only return the story in the following format:
 
-[Sentence 1]  
-[Sentence 2]  
-[Sentence 3]  
-[Sentence 4]  
-[...]
-[Sentence 9]
+    Format:  
+    Title: [story title]
 
-Main Character Description:
-[main character description here]
+    EN: [English sentence 1]  
+    KO: [Korean sentence 1]  
+    ...  
+    EN: [English sentence 9]  
+    KO: [Korean sentence 9]  
+
+    Main Character Description:  
+    [main character description here]
     """
 
     try:
@@ -216,58 +223,63 @@ def generate_all():
     try:
         # 1. GPT 프롬프트 구성
         prompt = f"""
-        The keyword: "{keyword}" is written in Korean.  
-        Please translate the keyword into English first.
+    Please translate this Korean word into English and use it as the topic: "{keyword}"
 
-        Then, randomly choose **one** of the following story structures to write a short story for young children (ages 3-6):  
+    Write a short story for young children (ages 3–6).  
+    Then, randomly choose **one** of the following three story structures.  
+    Make sure each structure has an **equal chance of being selected (1/3 probability each)**.  
+    Avoid always choosing the same type.
 
-        1. **Repetition Structure**  
-        - Use a repetitive sentence pattern (e.g., “I see...”, “Look at...”)  
-        - Keep the structure similar for the first 8 sentences  
-        - In the 9th sentence, add a fun twist or surprise  
+    1. **Repetition Structure**  
+    - Use a repetitive sentence pattern.  
+    - You may choose patterns like “Wow, look at...”, “It is...”, “Here is...”, “I like...”, or others.  
+    - Avoid using the same pattern every time.  
+    - Keep the structure similar for the first 8 sentences.  
+    - In the 9th sentence, add a fun twist or surprise.  
 
-        2. **Question + Answer Structure**  
-        - Use alternating questions and answers (e.g., “What is it?” / “It is a frog.”)  
-        - Keep the main character or object consistent  
-        - Make the 9th sentence unexpected or humorous  
+    2. **Question + Answer Structure**  
+    - Use alternating questions and answers (e.g., “What is it?” / “It is a frog.”)  
+    - Keep the main character or object consistent.  
+    - Make the 9th sentence unexpected or humorous.  
 
-        3. **Beginning-Middle-End (Story arc)**  
-        - Use a simple plot with one character  
-        - Include a beginning (situation), middle (event), and end (happy or funny ending)  
-        - Still use simple and short sentences (A1-level)  
+    3. **Beginning-Middle-End (Story arc)**  
+    - Use a simple plot with one character.  
+    - Include a beginning (situation), middle (event), and end (happy or funny ending).  
+    - Still use simple and short sentences (A1-level).  
 
-        Character Guidelines:
-        - The main character can be a human, animal, or nature-inspired object.
-        - Do not use specific names like Tom or Anna.
-        - Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).
-        - Alternatively, use “I” or “you” as the narrator.
+    Character Guidelines:  
+    - The main character can be a human, animal, or nature-inspired object.  
+    - Do not use specific names like Tom or Anna.  
+    - Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).  
+    - Alternatively, use “I” or “you” as the narrator.  
 
-        Story must:
-        - Be exactly **9 short sentences**  
-        - Use short sentences (6 to 12 words)
-        - Use only **simple present tense**  
-        - Avoid classic openings like 'Once upon a time'
-        - Use **A1-level English**, very easy to understand  
-        - Be fun, imaginative, and happy  
-        - After the story, add a short description of the main character (1~2 sentences)
+    Story Requirements:  
+    - Be exactly **9 short sentences**.  
+    - Use short sentences (6 to 12 words).  
+    - Use only **simple present tense**.  
+    - Avoid classic openings like 'Once upon a time'.  
+    - Use **A1-level English**, very easy to understand.  
+    - Be fun, imaginative, and happy.  
+    - After the story, add a short description of the main character (1–2 sentences).  
 
-        For each English sentence, also add its Korean translation.(Each Korean sentence must be translated into polite informal speech ("해요체"))
-        
-        Do not explain your choice or translation.
-        Only return the story in the following format.
+    For each English sentence, also add its Korean translation.  
+    Each Korean sentence must be translated into polite informal speech ("해요체").
 
-        Format:
-        Title: [story title]
+    Do not explain your choice or translation.  
+    Only return the story in the following format:
 
-        EN: [English sentence 1]  
-        KO: [Korean sentence 1]  
-        ...
-        EN: [English sentence 9]  
-        KO: [Korean sentence 9]  
+    Format:  
+    Title: [story title]
 
-        Main Character Description:
-        [main character description here]
-        """
+    EN: [English sentence 1]  
+    KO: [Korean sentence 1]  
+    ...  
+    EN: [English sentence 9]  
+    KO: [Korean sentence 9]  
+
+    Main Character Description:  
+    [main character description here]
+    """
 
         # 2. GPT 호출
         response = openai.ChatCompletion.create(
@@ -579,6 +591,7 @@ def save_story():
     
 #################################################################
 #  /stories/<id>/delete - 동화 삭제 API (지정된 id의 동화를 DB에서 삭제)
+
 @main.route("/stories/<story_id>/delete", methods=["DELETE"])
 def delete_story(story_id):
     from app.models import Story, db
