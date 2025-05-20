@@ -1,0 +1,20 @@
+Title: The Little Puppy's Big Day
+
+EN: I see a small puppy.
+KO: 작은 강아지를 봐요.
+EN: I see a small puppy wagging its tail.
+KO: 꼬리를 흔드는 작은 강아지를 봐요.
+EN: I see a small puppy chasing a leaf.
+KO: 낙엽을 쫓는 작은 강아지를 봐요.
+EN: I see a small puppy barking at a bird.
+KO: 새에게 짖는 작은 강아지를 봐요.
+EN: I see a small puppy jumping over a puddle.
+KO: 웅덩이를 뛰어넘는 작은 강아지를 봐요.
+EN: I see a small puppy sniffing a flower.
+KO: 꽃을 맡는 작은 강아지를 봐요.
+EN: I see a small puppy licking its paws.
+KO: 발을 핥는 작은 강아지를 봐요.
+EN: I see a small puppy falling asleep.
+KO: 잠이 드는 작은 강아지를 봐요.
+EN: I see a small puppy dreaming of being a big dog.
+KO: 큰 개가 되는 꿈을 꾸는 작은 강아지를 봐요.

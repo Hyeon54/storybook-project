@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
   <div class="viewer bg-cover bg-center h-screen overflow-hidden relative" :style="{ backgroundImage: `url(${heroBg})` }">
     <!-- ⬅ 내 서재로 버튼 -->
     <button
@@ -43,6 +44,27 @@
     <div class="absolute bottom-10 left-0 right-0 flex justify-center gap-6 z-40">
       <button @click="prevPage" :disabled="currentPage === 0" @mouseover="playClickSound" class="nav-btn">⬅️ 이전</button>
       <button @click="nextPage" :disabled="currentPage === 9" @mouseover="playClickSound" class="nav-btn">다음 ➡️</button>
+=======
+  <div class="viewer">
+    <!-- 공통: 이미지 출력 -->
+    <img :src="`http://127.0.0.1:5000${imageUrls[currentPage]}`" alt="동화 이미지" class="page-image" />
+
+    <!-- 0번 페이지: 제목 / 1~9번 페이지: 텍스트 -->
+    <div class="text-block">
+      <h1 v-if="currentPage === 0">{{ title }}</h1>
+      <div v-else>
+        <p class="english">{{ englishLines[currentPage - 1] }}</p>
+        <p class="korean">{{ koreanLines[currentPage - 1] }}</p>
+      </div>
+
+      <button @click="playAudio">🔊 오디오 듣기</button>
+    </div>
+
+    <!-- 페이지 컨트롤 -->
+    <div class="controls">
+      <button @click="prevPage" :disabled="currentPage === 0">⬅ 이전</button>
+      <button @click="nextPage" :disabled="currentPage === 9">다음 ➡</button>
+>>>>>>> 07abd32027e87c6db0560194802a1d5e0605629a
     </div>
   </div>
 </template>

@@ -65,6 +65,12 @@ Story must:
 - Be fun, imaginative, and happy  
 - After the story, add a short description of the main character in English (1~2 sentences).
 
+Character Guidelines:
+- The main character can be a human, animal, or nature-inspired object.
+- Do not use specific names like Tom or Anna.
+- Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).
+- Alternatively, use “I” or “you” as the narrator.
+
 Do not explain or label the translation.  
 Just return the story in the following format:
 
@@ -230,6 +236,12 @@ def generate_all():
         - Include a beginning (situation), middle (event), and end (happy or funny ending)  
         - Still use simple and short sentences (A1-level)  
 
+        Character Guidelines:
+        - The main character can be a human, animal, or nature-inspired object.
+        - Do not use specific names like Tom or Anna.
+        - Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).
+        - Alternatively, use “I” or “you” as the narrator.
+
         Story must:
         - Be exactly **9 short sentences**  
         - Use short sentences (6 to 12 words)
@@ -239,7 +251,7 @@ def generate_all():
         - Be fun, imaginative, and happy  
         - After the story, add a short description of the main character (1~2 sentences)
 
-        For each English sentence, also add its Korean translation.  
+        For each English sentence, also add its Korean translation.(Each Korean sentence must be translated into polite informal speech ("해요체"))
         
         Do not explain your choice or translation.
         Only return the story in the following format.
@@ -255,7 +267,6 @@ def generate_all():
 
         Main Character Description:
         [main character description here]
-
         """
 
         # 2. GPT 호출
@@ -300,7 +311,7 @@ def generate_all():
 
         # 5. 스타일 고정 + 텍스트 제거 지시 추가
         style_keyword = "in digital watercolor style, children's book illustration"
-        no_text_clause = "without any text, lettering, or words in the image"
+        no_text_clause = "Do not include any text, letters, numbers, captions, or written words in the image."
 
         # 6. 페이지별 생성
         for i in range(10):
@@ -311,7 +322,7 @@ def generate_all():
                 text_for_page = english_lines[i-1]
                 prompt_for_image = f"Illustration of: {text_for_page}, featuring {main_character_description}, {style_keyword}, {no_text_clause}"
 
-            # 이미지 생성 (DALL·E)
+            # 이미지 생성
             img_response = openai.Image.create(
                 prompt=prompt_for_image,
                 model="dall-e-3",
@@ -325,7 +336,7 @@ def generate_all():
                 f.write(requests.get(img_url).content)
             image_urls.append(f"/static/{story_id}_{i}.png")
 
-            # 오디오 생성 (Google TTS)
+            # 오디오 생성
             tts_client = texttospeech.TextToSpeechClient()
             synthesis_input = texttospeech.SynthesisInput(text=text_for_page)
             voice = texttospeech.VoiceSelectionParams(
@@ -344,13 +355,27 @@ def generate_all():
                 out.write(audio_response.audio_content)
             audio_urls.append(f"/static/{story_id}_{i}.mp3")
 
-        # 7. 전체 텍스트 저장 (EN/KO 포함)
+        # 7. 전체 텍스트 저장
         with open(f"static/{story_id}.txt", "w", encoding="utf-8") as f:
             f.write(f"Title: {story_title}\n\n")
             for en, ko in zip(english_lines, korean_lines):
                 f.write(f"EN: {en}\nKO: {ko}\n")
 
-        # 8. 응답 반환
+        # 8. 자동 저장 (DB)
+        from app.models import Story, db
+        story = Story(
+            id=story_id,
+            title=story_title,
+            english_lines="\n".join(english_lines),
+            korean_lines="\n".join(korean_lines),
+            image_urls="\n".join(image_urls),
+            audio_urls="\n".join(audio_urls),
+            main_character_description=main_character_description
+        )
+        db.session.add(story)
+        db.session.commit()
+
+        # 9. 응답 반환
         return jsonify({
             "id": story_id,
             "title": story_title,
@@ -390,87 +415,183 @@ def get_latest_story():
     })
 
 ###########################################################
-# /stories API 만들기 : API역할 - static폴더 내에 저장된 동화 데이터목록(이미지 + 제목) 반환 역할
+# /stories API 만들기 : # 리팩터링된 /stories API (DB 기반)
 @main.route("/stories", methods=["GET"])
 def get_stories():
-    import os
+    from app.models import Story
 
-    static_dir = "static"
-    story_files = []
-
-    for filename in os.listdir(static_dir):
-        if filename.endswith(".txt"):
-            base = filename.replace(".txt", "")
-            txt_path = os.path.join(static_dir, filename)
-            img_path = f"/static/{base}_0.png"
-
-            # 제목 추출 (첫 줄에 "Title: ~~~" 형식)
-            with open(txt_path, "r", encoding="utf-8") as f:
-                first_line = f.readline().strip()
-                if first_line.lower().startswith("title:"):
-                    title = first_line.replace("Title:", "").strip()
-                else:
-                    title = base
-
-            story_files.append({
-                "id": base,
-                "title": title,
-                "cover_url": img_path  # 이미지 경로
+    try:
+        stories = Story.query.all()
+        result = []
+        for s in stories:
+            result.append({
+                "id": s.id,
+                "title": s.title,
+                "cover_url": s.image_urls.split("\n")[0]  # 0번째 이미지
             })
+        return jsonify({"stories": result})
 
-    return jsonify({"stories": story_files})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# API역할 - static폴더 내에 저장된 동화 데이터목록(이미지 + 제목) 반환 역할
+# @main.route("/stories", methods=["GET"])
+# def get_stories():
+#     import os
+
+#     static_dir = "static"
+#     story_files = []
+
+#     for filename in os.listdir(static_dir):
+#         if filename.endswith(".txt"):
+#             base = filename.replace(".txt", "")
+#             txt_path = os.path.join(static_dir, filename)
+#             img_path = f"/static/{base}_0.png"
+
+#             # 제목 추출 (첫 줄에 "Title: ~~~" 형식)
+#             with open(txt_path, "r", encoding="utf-8") as f:
+#                 first_line = f.readline().strip()
+#                 if first_line.lower().startswith("title:"):
+#                     title = first_line.replace("Title:", "").strip()
+#                 else:
+#                     title = base
+
+#             story_files.append({
+#                 "id": base,
+#                 "title": title,
+#                 "cover_url": img_path  # 이미지 경로
+#             })
+
+#     return jsonify({"stories": story_files})
 #########################################################
 # /stories/<id> API 설계
+# 리팩터링된 /stories/<story_id> 라우터 (DB 사용)
 @main.route("/stories/<story_id>", methods=["GET"])
 def get_story_by_id(story_id):
-    import os
+    from app.models import Story
     from flask import jsonify
-    
-    # 1. 경로 구성
-    base_dir = os.path.join(os.path.dirname(__file__), "..")
-    static_path = os.path.join(base_dir, "static")
-    txt_path = os.path.join(static_path, f"{story_id}.txt")
 
-    # 2. 디버깅 출력
-    print(f"[DEBUG] 요청된 story_id: {story_id}")
-    print(f"[DEBUG] TXT 경로: {txt_path} | 존재함? {os.path.exists(txt_path)}")
-
-    if not os.path.exists(txt_path):
+    story = Story.query.get(story_id)
+    if not story:
         return jsonify({"error": "Story not found"}), 404
 
     try:
-        # 3. 텍스트 파일 읽기
-        with open(txt_path, "r", encoding="utf-8") as f:
-            content = f.read()
+        # 문자열 → 리스트 변환
+        english_lines = story.english_lines.strip().split("\n")
+        korean_lines = story.korean_lines.strip().split("\n")
+        image_urls = story.image_urls.strip().split("\n")
+        audio_urls = story.audio_urls.strip().split("\n")
 
-        lines = content.strip().split("\n")
-        title_line = lines[0].strip()
-        title = title_line.replace("Title:", "").strip()
-
-        english_lines = []
-        korean_lines = []
-
-        for line in lines[1:]:
-            line = line.strip()
-            if line.startswith("EN:"):
-                english_lines.append(line.replace("EN:", "").strip())
-            elif line.startswith("KO:"):
-                korean_lines.append(line.replace("KO:", "").strip())
-
-        # 4. 이미지/오디오 URL 리스트 구성
-        image_urls = [f"/static/{story_id}_{i}.png" for i in range(10)]
-        audio_urls = [f"/static/{story_id}_{i}.mp3" for i in range(10)]
-
-        # 5. 응답 반환
         return jsonify({
-            "id": story_id,
-            "title": title,
+            "id": story.id,
+            "title": story.title,
             "english_lines": english_lines,
             "korean_lines": korean_lines,
             "image_urls": image_urls,
-            "audio_urls": audio_urls
+            "audio_urls": audio_urls,
+            "main_character_description": story.main_character_description
         })
 
     except Exception as e:
         print("[ERROR]", str(e))
-        return jsonify({"error": "Failed to read story"}), 500
+        return jsonify({"error": "Failed to read story from DB"}), 500
+
+
+
+# @main.route("/stories/<story_id>", methods=["GET"])
+# def get_story_by_id(story_id):
+#     import os
+#     from flask import jsonify
+    
+#     # 1. 경로 구성
+#     base_dir = os.path.join(os.path.dirname(__file__), "..")
+#     static_path = os.path.join(base_dir, "static")
+#     txt_path = os.path.join(static_path, f"{story_id}.txt")
+
+#     # 2. 디버깅 출력
+#     print(f"[DEBUG] 요청된 story_id: {story_id}")
+#     print(f"[DEBUG] TXT 경로: {txt_path} | 존재함? {os.path.exists(txt_path)}")
+
+#     if not os.path.exists(txt_path):
+#         return jsonify({"error": "Story not found"}), 404
+
+#     try:
+#         # 3. 텍스트 파일 읽기
+#         with open(txt_path, "r", encoding="utf-8") as f:
+#             content = f.read()
+
+#         lines = content.strip().split("\n")
+#         title_line = lines[0].strip()
+#         title = title_line.replace("Title:", "").strip()
+
+#         english_lines = []
+#         korean_lines = []
+
+#         for line in lines[1:]:
+#             line = line.strip()
+#             if line.startswith("EN:"):
+#                 english_lines.append(line.replace("EN:", "").strip())
+#             elif line.startswith("KO:"):
+#                 korean_lines.append(line.replace("KO:", "").strip())
+
+#         # 4. 이미지/오디오 URL 리스트 구성
+#         image_urls = [f"/static/{story_id}_{i}.png" for i in range(10)]
+#         audio_urls = [f"/static/{story_id}_{i}.mp3" for i in range(10)]
+
+#         # 5. 응답 반환
+#         return jsonify({
+#             "id": story_id,
+#             "title": title,
+#             "english_lines": english_lines,
+#             "korean_lines": korean_lines,
+#             "image_urls": image_urls,
+#             "audio_urls": audio_urls
+#         })
+
+#     except Exception as e:
+#         print("[ERROR]", str(e))
+#         return jsonify({"error": "Failed to read story"}), 500
+  
+#################################################################
+# /stories/save - 동화 저장 API  (/generate로 생성된 동화를 MySQL DB에 저장)
+@main.route("/stories/save", methods=["POST"])
+def save_story():
+    from app.models import db, Story
+    data = request.get_json()
+
+    try:
+        story = Story(
+            id=data["id"],
+            title=data["title"],
+            english_lines="\n".join(data["english_lines"]),
+            korean_lines="\n".join(data["korean_lines"]),
+            image_urls="\n".join(data["image_urls"]),
+            audio_urls="\n".join(data["audio_urls"]),
+            main_character_description=data.get("main_character_description", "")
+        )
+        db.session.add(story)
+        db.session.commit()
+        return jsonify({"message": "Story saved successfully"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+#################################################################
+#  /stories/<id>/delete - 동화 삭제 API (지정된 id의 동화를 DB에서 삭제)
+@main.route("/stories/<story_id>/delete", methods=["DELETE"])
+def delete_story(story_id):
+    from app.models import Story, db
+    story = Story.query.get(story_id)
+
+    if not story:
+        return jsonify({"error": "Story not found"}), 404
+
+    try:
+        db.session.delete(story)
+        db.session.commit()
+        return jsonify({"message": "Story deleted successfully"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
