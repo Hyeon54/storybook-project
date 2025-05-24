@@ -16,19 +16,30 @@
     <div class="shelf-container">
       <img src="@/assets/bookshelf-large.png" alt="Bookshelf" class="shelf" />
       <div class="book-wrapper">
-        <div v-for="story in paginatedStories" :key="story.id" class="book-card" @click="goToStory(story.id)">
-          <img :src="`http://127.0.0.1:5000${story.cover_url}`" class="book-cover" alt="동화 표지" />
+        <div
+          v-for="story in paginatedStories"
+          :key="story.id"
+          class="book-card"
+          @click="goToStory(story.id)"
+        >
+          <img
+            :src="`http://127.0.0.1:5000${story.cover_url}`"
+            class="book-cover"
+            alt="동화 표지"
+          />
           <p class="book-title">{{ story.title }}</p>
         </div>
       </div>
     </div>
 
-    <!-- 페이지 넘기기 버튼 -->
-    <div class="pagination" v-if="totalPages > 1">
-      <button @click="prevPage" :disabled="currentPage === 1">◀ 이전</button>
-      <span>{{ currentPage }} / {{ totalPages }}</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">다음 ▶</button>
-    </div>
+    <!-- 페이지 넘기기 버튼 (하단 고정 + 애니메이션 효과 포함) -->
+    <transition name="fade">
+      <div class="pagination" v-if="totalPages > 1">
+        <button @click="prevPage" :disabled="currentPage === 1">◀ 이전</button>
+        <span>{{ currentPage }} / {{ totalPages }}</span>
+        <button @click="nextPage" :disabled="currentPage === totalPages">다음 ▶</button>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -111,7 +122,6 @@ onMounted(async () => {
   overflow: hidden;
 }
 
-/* 서재 위 문구 */
 .shelf-label {
   position: absolute;
   bottom: 750px;
@@ -126,14 +136,13 @@ onMounted(async () => {
   text-shadow: 1px 1px 0 #fff;
 }
 
-/* 책장 */
 .shelf-container {
   position: absolute;
   width: 100%;
   max-width: 1200px;
   height: 400px;
   margin-top: auto;
-  margin-bottom: -250px; /* ✅ 화면 바닥에서 살짝 위로 띄움 */
+  margin-bottom: -250px;
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -146,10 +155,9 @@ onMounted(async () => {
   z-index: 1;
 }
 
-/* 책들 */
 .book-wrapper {
   position: absolute;
-  bottom: 400px; /* ✅ 선반 위로 */
+  bottom: 400px;
   display: flex;
   justify-content: center;
   gap: 2.5rem;
@@ -180,29 +188,53 @@ onMounted(async () => {
   text-align: center;
 }
 
-/* 페이지네이션 */
 .pagination {
-  margin-top: auto;
-  margin-bottom: 1.5rem;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   gap: 1.5rem;
   align-items: center;
   font-size: 1.2rem;
-}
-.pagination button {
-  background: #fff;
-  border: 2px solid #4caf50;
-  padding: 0.5rem 1rem;
+  z-index: 999;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.6rem 1.2rem;
   border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   font-family: "Jua", sans-serif;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+}
+
+.pagination button {
+  background: #ffffff;
+  border: 2px solid #4caf50;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 .pagination button:hover {
-  background: #c8facc;
+  background: #d7ffe1;
 }
 .pagination button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.8s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

@@ -14,7 +14,6 @@
       <p class="text-2xl md:text-4xl font-jua text-white bg-green-800/80 px-6 py-4 rounded-xl shadow-lg animate-pulse">
         요정이 동화를 만드는 중이에요<span class="dot-anim">...</span>
       </p>
-      <!-- 돌아가는 요술봉 -->
       <img :src="wand" alt="spinning wand" class="w-[120px] md:w-[160px] animate-spin-slow" />
     </div>
 
@@ -30,21 +29,16 @@
       </button>
     </div>
 
-    <!-- 기본 입력 화면 -->
+    <!-- 입력 화면 -->
     <div class="absolute inset-0 flex justify-center items-center px-4" v-if="!isLoading && !isComplete">
       <div class="relative w-full max-w-[900px]">
-        <!-- 책 이미지 -->
         <img :src="storybook" alt="storybook" class="w-full drop-shadow-xl" />
-
-        <!-- 입력창 -->
         <input
           type="text"
           v-model="keyword"
           placeholder="키워드를 입력해 주세요"
           class="absolute left-1/2 top-[38%] w-[85%] sm:w-[75%] md:w-[65%] transform -translate-x-1/2 -translate-y-1/2 text-center text-xl md:text-2xl p-4 rounded-xl bg-white/80 shadow-md outline-none focus:ring-2 focus:ring-green-400 transition-all"
         />
-
-        <!-- 입력 버튼 -->
         <button
           @click="handleClick"
           @mouseover="playClickSound"
@@ -60,9 +54,10 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import axios from "axios";
 import heroBackground from "@/assets/hero-background.png";
 import storybook from "@/assets/storybook-centered.png";
-import wand from "@/assets/spinning_wand.png"; // 요술봉 PNG import
+import wand from "@/assets/spinning_wand.png";
 
 const keyword = ref("");
 const isLoading = ref(false);
@@ -75,7 +70,7 @@ function playClickSound() {
   clickSound.play();
 }
 
-function handleClick() {
+async function handleClick() {
   if (!keyword.value.trim()) {
     alert("키워드를 입력해 주세요!");
     return;
@@ -84,11 +79,20 @@ function handleClick() {
   playClickSound();
   isLoading.value = true;
 
-  // 로딩 시뮬레이션 (예: 3초 후 완료)
-  setTimeout(() => {
+  try {
+    const res = await axios.post("http://127.0.0.1:5000/generate", {
+      keyword: keyword.value,
+    });
+
+    console.log("📘 동화 생성 결과:", res.data);
     isLoading.value = false;
     isComplete.value = true;
-  }, 3000);
+
+  } catch (err) {
+    console.error("❌ 동화 생성 실패:", err);
+    alert("동화 생성에 실패했어요. 콘솔에서 오류 로그를 확인해 주세요.");
+    isLoading.value = false;
+  }
 }
 
 function goHome() {
