@@ -19,7 +19,8 @@ const routes = [
   { path: '/', component: Home },  // 브라우저 주소가 "/"일 때, // Home.vue를 보여줌줌
   { path: '/create', component: Create },
   { path: '/library', component: Library },
-  { path: '/viewer/:id', component: Viewer } // Viewer.vue라우터 추가 등록 
+  { path: '/viewer/:id', component: Viewer }, // Viewer.vue라우터 추가 등록
+  { path: '/hidden', component: () => import('@/pages/Hidden.vue') } // Hidden.vue라우터 추가 등록
 ]
 
 // 위의 경로 설정을 기반으로 라우터(router)를 생성

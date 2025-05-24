@@ -9,6 +9,15 @@
       ← 홈으로
     </button>
 
+    <!-- 숨긴 목록 보기 버튼 // Hidden.vue로 가는 버튼 추가 -->
+    <button
+      @click="goHidden"
+      @mouseover="playClickSound"
+      class="goto-hidden-btn"
+    >
+      숨긴 목록 보기
+    </button>
+
     <!-- 서재 위 문구 -->
     <div class="shelf-label">📚 나의 동화 서재</div>
 
@@ -28,11 +37,13 @@
             alt="동화 표지"
           />
           <p class="book-title">{{ story.title }}</p>
+          <!-- 👁️ 숨기기 버튼 -->
+          <button class="hide-btn" @click.stop="toggleHide(story.id)">👁️ 숨기기</button>
         </div>
       </div>
     </div>
 
-    <!-- 페이지 넘기기 버튼 (하단 고정 + 애니메이션 효과 포함) -->
+    <!-- 페이지 넘기기 버튼 -->
     <transition name="fade">
       <div class="pagination" v-if="totalPages > 1">
         <button @click="prevPage" :disabled="currentPage === 1">◀ 이전</button>
@@ -60,6 +71,11 @@ function playClickSound() {
   audio.currentTime = 0;
   audio.play();
 }
+// Hidden.vue로 가는 버튼 추가
+const goHidden = () => {
+  playClickSound();
+  router.push("/hidden");
+};
 
 const goHome = () => {
   playClickSound();
@@ -92,6 +108,16 @@ const paginatedStories = computed(() => {
   return stories.value.slice(start, start + itemsPerPage);
 });
 
+const toggleHide = async (id) => {
+  try {
+    await axios.post(`http://127.0.0.1:5000/stories/${id}/hide`);
+    const res = await axios.get("http://127.0.0.1:5000/stories");
+    stories.value = res.data.stories;
+  } catch (err) {
+    alert("숨기기에 실패했어요 😢");
+  }
+};
+
 onMounted(async () => {
   try {
     const res = await axios.get("http://127.0.0.1:5000/stories");
@@ -105,6 +131,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+@import "@/assets/library-shared.css";
 .library {
   min-height: 100vh;
   height: 100vh;
@@ -120,6 +147,26 @@ onMounted(async () => {
   justify-content: flex-end;
   position: relative;
   overflow: hidden;
+}
+/* // Hidden.vue로 가는 버튼 추가 */
+.goto-hidden-btn {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: #ffffffcc;
+  color: #2e7d32;
+  border: 2px solid #2e7d32;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  font-family: "Jua", sans-serif;
+  border-radius: 9999px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  z-index: 50;
+}
+.goto-hidden-btn:hover {
+  background-color: #2e7d32;
+  color: white;
 }
 
 .shelf-label {
@@ -186,6 +233,21 @@ onMounted(async () => {
   font-size: 1.2rem;
   color: #3e3e3e;
   text-align: center;
+}
+
+.hide-btn {
+  margin-top: 0.5rem;
+  background: #fff;
+  border: 2px solid #f44336;
+  color: #f44336;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.hide-btn:hover {
+  background: #ffecec;
 }
 
 .pagination {

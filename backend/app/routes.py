@@ -433,13 +433,15 @@ def get_stories():
     from app.models import Story
 
     try:
-        stories = Story.query.all()
+        # 숨김 처리된 동화 제외
+        stories = Story.query.filter_by(is_hidden=False).all()
+
         result = []
         for s in stories:
             result.append({
                 "id": s.id,
                 "title": s.title,
-                "cover_url": s.image_urls.split("\n")[0]  # 0번째 이미지
+                "cover_url": s.image_urls.split("\n")[0] #0번쩨 이미지지
             })
         return jsonify({"stories": result})
 
@@ -607,4 +609,47 @@ def delete_story(story_id):
 
     except Exception as e:
         db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+#####################################################
+# POST /stories/<id>/hide 요청이 들어오면 해당 동화의 is_hidden 값을 True ↔ False로 토글
+@main.route("/stories/<story_id>/hide", methods=["POST"])
+def hide_story(story_id):
+    from app.models import Story, db
+    from flask import jsonify
+
+    story = Story.query.get(story_id)
+    if not story:
+        return jsonify({"error": "Story not found"}), 404
+
+    try:
+        # 👇 현재 상태에서 반대로 바꾸기 (True → False / False → True)
+        story.is_hidden = not story.is_hidden
+        db.session.commit()
+        return jsonify({
+            "message": "Story hidden status toggled",
+            "hidden": story.is_hidden
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+#######################################################
+# GET /stories/hidden 요청 시, is_hidden = True인 동화 목록만 응답
+@main.route("/stories/hidden", methods=["GET"])
+def get_hidden_stories():
+    from app.models import Story
+
+    try:
+        stories = Story.query.filter_by(is_hidden=True).all()
+        result = []
+        for s in stories:
+            result.append({
+                "id": s.id,
+                "title": s.title,
+                "cover_url": s.image_urls.split("\n")[0]
+            })
+        return jsonify({"stories": result})
+
+    except Exception as e:
         return jsonify({"error": str(e)}), 500

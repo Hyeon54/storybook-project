@@ -1,0 +1,80 @@
+.library {
+  min-height: 100vh;
+  background-image: url("@/assets/hero-background.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: "Jua", sans-serif;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  overflow: hidden;
+}
+
+.shelf-label {
+  position: absolute;
+  bottom: 750px;
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.85);
+  color: #2e7d32;
+  font-size: 3rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  text-shadow: 1px 1px 0 #fff;
+}
+
+.shelf-container {
+  position: absolute;
+  width: 100%;
+  max-width: 1200px;
+  height: 400px;
+  margin-top: auto;
+  margin-bottom: -250px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1;
+}
+
+.shelf {
+  width: 100%;
+  height: auto;
+  z-index: 1;
+}
+
+.book-wrapper {
+  position: absolute;
+  bottom: 400px;
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  z-index: 2;
+  width: 100%;
+}
+
+.book-card {
+  width: 260px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.book-card:hover {
+  transform: translateY(-8px) scale(1.03);
+}
+.book-cover {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+}
+.book-title {
+  font-size: 1.2rem;
+  color: #3e3e3e;
+  text-align: center;
+}

@@ -11,3 +11,4 @@ class Story(db.Model):
     image_urls = db.Column(db.Text, nullable=False)
     audio_urls = db.Column(db.Text, nullable=False)
     main_character_description = db.Column(db.Text, nullable=True)
+    is_hidden = db.Column(db.Boolean, default=False)
