@@ -26,9 +26,9 @@
 
       <!-- 오른쪽: 텍스트 + 오디오 -->
       <div class="absolute top-[14%] right-[14%] w-[38%] h-[70%] flex flex-col justify-center text-center space-y-4 px-2">
-        <h1 v-if="currentPage === 0" class="text-3xl md:text-4xl font-bold text-green-800 drop-shadow font-jua">{{ title }}</h1>
+        <h1 v-if="currentPage === 0" class="text-2xl md:text-2xl font-bold text-green-800 drop-shadow font-jua">{{ title }}</h1>
         <div v-else>
-          <p class="text-2xl md:text-3xl font-semibold text-gray-800 mb-2 font-jua">
+          <p class="text-xl md:text-2xl font-semibold text-gray-800 mb-2 font-jua">
             {{ englishLines[currentPage - 1] }}
           </p>
           <p class="text-xl md:text-2xl text-gray-600 font-jua">
