@@ -26,94 +26,103 @@ def get_api_key():
 # GPT API를 호출하는 Flask 라우터 (test용)
 @main.route("/generate/text", methods=["POST"])
 def generate_text():
-    # 프론트에서 받은 JSON 데이터 중 'keyword' 추출
     data = request.get_json()
     keyword = data.get("keyword")
 
-    # 키워드가 없으면, 에러 응답 반환하기
     if not keyword:
         return {"error": "Keyword is required."}, 400
-    
-    # GPT에게 전달할 프롬프트 메시지 구성 (Use 4 to 6 sentences total여기 추후 수정)
+
     prompt = f"""
-    Please translate this Korean word into English and use it as the topic: "{keyword}"
+Please translate this Korean word into English and use it as the topic: "{keyword}"
 
-    Write a short story for young children (ages 3–6).  
-    Then, randomly choose **one** of the following three story structures.  
-    Make sure each structure has an **equal chance of being selected (1/3 probability each)**.  
-    Avoid always choosing the same type.
+Write a short story for young children (ages 3–6).
+Then, randomly choose **one** of the following three story structures.
+Make sure each structure has an **equal chance of being selected (1/3 probability each)**.
+Avoid always choosing the same type.
 
-    1. **Repetition Structure**  
-    - Use a repetitive sentence pattern.  
-    - You may choose patterns like “Wow, look at...”, “It is...”, “Here is...”, “I like...”, or others.  
-    - Avoid using the same pattern every time.  
-    - Keep the structure similar for the first 8 sentences.  
-    - In the 9th sentence, add a fun twist or surprise.  
+1. **Repetition Structure**  
+- Use a repetitive sentence pattern.  
+- You may choose patterns like “Wow, look at...”, “It is...”, “Here is...”, “I like...”, or others.  
+- Avoid using the same pattern every time.  
+- Keep the structure similar for the first 8 sentences.  
+- In the 9th sentence, add a fun twist or surprise.
 
-    2. **Question + Answer Structure**  
-    - Use alternating questions and answers (e.g., “What is it?” / “It is a frog.”)  
-    - Keep the main character or object consistent.  
-    - Make the 9th sentence unexpected or humorous.  
+2. **Question + Answer Structure**  
+- Use alternating questions and answers (e.g., “What is it?” / “It is a frog.”)  
+- Keep the main character or object consistent.  
+- Make the 9th sentence unexpected or humorous.
 
-    3. **Beginning-Middle-End (Story arc)**  
-    - Use a simple plot with one character.  
-    - Include a beginning (situation), middle (event), and end (happy or funny ending).  
-    - Still use simple and short sentences (A1-level).  
+3. **Beginning-Middle-End (Story arc)**  
+- Use a simple plot with one character.  
+- Include a beginning (situation), middle (event), and end (happy or funny ending).  
+- Still use simple and short sentences (A1-level).
 
-    Character Guidelines:  
-    - The main character can be a human, animal, or nature-inspired object.  
-    - Do not use specific names like Tom or Anna.  
-    - Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).  
-    - Alternatively, use “I” or “you” as the narrator.  
+Character Guidelines:  
+- The main character can be a human, animal, or nature-inspired object.  
+- Do not use specific names like Tom or Anna.  
+- Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).  
+- Alternatively, use “I” or “you” as the narrator.
 
-    Story Requirements:  
-    - Be exactly **9 short sentences**.  
-    - Use short sentences (6 to 12 words).  
-    - Use only **simple present tense**.  
-    - Avoid classic openings like 'Once upon a time'.  
-    - Use **A1-level English**, very easy to understand.  
-    - Be fun, imaginative, and happy.  
-    - After the story, add a short description of the main character (1–2 sentences).  
+Story Requirements:  
+- Be exactly **9 short sentences**.  
+- Use short sentences (6 to 12 words).  
+- Use only **simple present tense**.  
+- Avoid classic openings like 'Once upon a time'.  
+- Use **A1-level English**, very easy to understand.  
+- Be fun, imaginative, and happy.  
+- After the story, add a short description of the main character (1–2 sentences).
 
-    For each English sentence, also add its Korean translation.  
-    Each Korean sentence must be translated into polite informal speech ("해요체").
+For each English sentence, also add its Korean translation.  
+Each Korean sentence must be translated into polite informal speech ("해요체").
 
-    Do not explain your choice or translation.  
-    Only return the story in the following format:
+At the beginning of your output, print the selected structure in the following format:  
+Structure: [Structure Name]
 
-    Format:  
-    Title: [story title]
+For example:  
+Structure: Repetition Structure
+Structure: Question + Answer Structure
+Structure: Beginning-Middle-End (Story arc)
 
-    EN: [English sentence 1]  
-    KO: [Korean sentence 1]  
-    ...  
-    EN: [English sentence 9]  
-    KO: [Korean sentence 9]  
+Do not explain your choice or translation.  
+Only return the story in the following format:
 
-    Main Character Description:  
-    [main character description here]
-    """
+Format:  
+Structure: [Structure Name]  
+Title: [story title]
+
+EN: [English sentence 1]  
+KO: [Korean sentence 1]  
+...  
+EN: [English sentence 9]  
+KO: [Korean sentence 9]  
+
+Main Character Description:  
+[main character description here]
+"""
 
     try:
-        # OpenAI GPT API 호출 (ChatGPT 방식)
-        #model="gpt-4-turbo",  # 이렇게 바꾸면 GPT-4-turbo 사용
         response = openai.ChatCompletion.create(
-            model="gpt-4-turbo",  # 사용할 모델 (openai==0.28은 OpenAI 라이브러리의 버전이고, "gpt-3.5-turbo"는 우리가 호출할 GPT 모델의 이름)
+            model="gpt-4-turbo",
             messages=[
                 {"role": "system", "content": "You are a creative story writer for children."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.8  # 창의성 조절 수치 (높을수록 더 창의적)
+            temperature=0.8
         )
 
-        # 응답에서 텍스트 추출
         story = response['choices'][0]['message']['content']
 
-        # 생성된 이야기 텍스트를 JSON 형태로 반환
-        return {"story": story}
+        # 구조명 파싱
+        lines = story.split("\n")
+        structure_line = lines[0].strip()
+        structure = structure_line.replace("Structure:", "").strip()
+
+        return {
+            "structure": structure,
+            "story": story
+        }
 
     except Exception as e:
-        # 에러 발생 시 메시지 반환
         return {"error": str(e)}, 500
     
 ############################################################
@@ -221,65 +230,74 @@ def generate_all():
         return jsonify({"error": "Keyword is required."}), 400
 
     try:
-        # 1. GPT 프롬프트 구성
+        # 1. 프롬프트 구성 (최종 완전판)
         prompt = f"""
-    Please translate this Korean word into English and use it as the topic: "{keyword}"
+        Please translate this Korean word into English and use it as the topic: "{keyword}"
 
-    Write a short story for young children (ages 3–6).  
-    Then, randomly choose **one** of the following three story structures.  
-    Make sure each structure has an **equal chance of being selected (1/3 probability each)**.  
-    Avoid always choosing the same type.
+        Write a short story for young children (ages 3–6).
+        Then, randomly choose **one** of the following three story structures.
+        Make sure each structure has an **equal chance of being selected (1/3 probability each)**.
+        Avoid always choosing the same type.
 
-    1. **Repetition Structure**  
-    - Use a repetitive sentence pattern.  
-    - You may choose patterns like “Wow, look at...”, “It is...”, “Here is...”, “I like...”, or others.  
-    - Avoid using the same pattern every time.  
-    - Keep the structure similar for the first 8 sentences.  
-    - In the 9th sentence, add a fun twist or surprise.  
+        1. **Repetition Structure**  
+        - Use a repetitive sentence pattern.  
+        - You may choose patterns like “Wow, look at...”, “It is...”, “Here is...”, “I like...”, or others.  
+        - Avoid using the same pattern every time.  
+        - Keep the structure similar for the first 8 sentences.  
+        - In the 9th sentence, add a fun twist or surprise.
 
-    2. **Question + Answer Structure**  
-    - Use alternating questions and answers (e.g., “What is it?” / “It is a frog.”)  
-    - Keep the main character or object consistent.  
-    - Make the 9th sentence unexpected or humorous.  
+        2. **Question + Answer Structure**  
+        - Use alternating questions and answers (e.g., “What is it?” / “It is a frog.”)  
+        - Keep the main character or object consistent.  
+        - Make the 9th sentence unexpected or humorous.
 
-    3. **Beginning-Middle-End (Story arc)**  
-    - Use a simple plot with one character.  
-    - Include a beginning (situation), middle (event), and end (happy or funny ending).  
-    - Still use simple and short sentences (A1-level).  
+        3. **Beginning-Middle-End (Story arc)**  
+        - Use a simple plot with one character.  
+        - Include a beginning (situation), middle (event), and end (happy or funny ending).  
+        - Still use simple and short sentences (A1-level).
 
-    Character Guidelines:  
-    - The main character can be a human, animal, or nature-inspired object.  
-    - Do not use specific names like Tom or Anna.  
-    - Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).  
-    - Alternatively, use “I” or “you” as the narrator.  
+        Character Guidelines:  
+        - The main character can be a human, animal, or nature-inspired object.  
+        - Do not use specific names like Tom or Anna.  
+        - Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).  
+        - Alternatively, use “I” or “you” as the narrator.
 
-    Story Requirements:  
-    - Be exactly **9 short sentences**.  
-    - Use short sentences (6 to 12 words).  
-    - Use only **simple present tense**.  
-    - Avoid classic openings like 'Once upon a time'.  
-    - Use **A1-level English**, very easy to understand.  
-    - Be fun, imaginative, and happy.  
-    - After the story, add a short description of the main character (1–2 sentences).  
+        Story Requirements:  
+        - Be exactly **9 short sentences**.  
+        - Use short sentences (6 to 12 words).  
+        - Use only **simple present tense**.  
+        - Avoid classic openings like 'Once upon a time'.  
+        - Use **A1-level English**, very easy to understand.  
+        - Be fun, imaginative, and happy.  
+        - After the story, add a short description of the main character (1–2 sentences).
 
-    For each English sentence, also add its Korean translation.  
-    Each Korean sentence must be translated into polite informal speech ("해요체").
+        For each English sentence, also add its Korean translation.  
+        Each Korean sentence must be translated into polite informal speech ("해요체").
 
-    Do not explain your choice or translation.  
-    Only return the story in the following format:
+        At the beginning of your output, print the selected structure in the following format:  
+        Structure: [Structure Name]
 
-    Format:  
-    Title: [story title]
+        For example:  
+        Structure: Repetition Structure
+        Structure: Question + Answer Structure
+        Structure: Beginning-Middle-End (Story arc)
 
-    EN: [English sentence 1]  
-    KO: [Korean sentence 1]  
-    ...  
-    EN: [English sentence 9]  
-    KO: [Korean sentence 9]  
+        Do not explain your choice or translation.  
+        Only return the story in the following format:
 
-    Main Character Description:  
-    [main character description here]
-    """
+        Format:  
+        Structure: [Structure Name]  
+        Title: [story title]
+
+        EN: [English sentence 1]  
+        KO: [Korean sentence 1]  
+        ...  
+        EN: [English sentence 9]  
+        KO: [Korean sentence 9]  
+
+        Main Character Description:  
+        [main character description here]
+        """
 
         # 2. GPT 호출
         response = openai.ChatCompletion.create(
@@ -294,14 +312,20 @@ def generate_all():
         # 3. 응답 파싱
         story = response['choices'][0]['message']['content'].strip()
         lines = story.split("\n")
-        title_line = lines[0].strip()
+
+        # 구조명 파싱
+        structure_line = lines[0].strip()
+        structure = structure_line.replace("Structure:", "").strip()
+
+        # 제목 파싱
+        title_line = lines[1].strip()
         story_title = title_line.replace("Title:", "").strip()
 
         english_lines = []
         korean_lines = []
         main_character_description = ""
 
-        for idx, line in enumerate(lines[1:], 1):
+        for idx, line in enumerate(lines[2:], 1):
             line = line.strip()
             if line.startswith("EN:"):
                 english_lines.append(line.replace("EN:", "").strip())
@@ -321,11 +345,10 @@ def generate_all():
         image_urls = []
         audio_urls = []
 
-        # 5. 스타일 고정 + 텍스트 제거 지시 추가
+        # 5. 이미지/오디오 생성
         style_keyword = "in digital watercolor style, children's book illustration"
         no_text_clause = "Do not include any text, letters, numbers, captions, or written words in the image."
 
-        # 6. 페이지별 생성
         for i in range(10):
             if i == 0:
                 text_for_page = story_title
@@ -334,7 +357,7 @@ def generate_all():
                 text_for_page = english_lines[i-1]
                 prompt_for_image = f"Illustration of: {text_for_page}, featuring {main_character_description}, {style_keyword}, {no_text_clause}"
 
-            # 이미지 생성
+            # DALL·E 이미지 생성
             img_response = openai.Image.create(
                 prompt=prompt_for_image,
                 model="dall-e-3",
@@ -348,7 +371,7 @@ def generate_all():
                 f.write(requests.get(img_url).content)
             image_urls.append(f"/static/{story_id}_{i}.png")
 
-            # 오디오 생성
+            # Google TTS 음성 생성
             tts_client = texttospeech.TextToSpeechClient()
             synthesis_input = texttospeech.SynthesisInput(text=text_for_page)
             voice = texttospeech.VoiceSelectionParams(
@@ -367,13 +390,14 @@ def generate_all():
                 out.write(audio_response.audio_content)
             audio_urls.append(f"/static/{story_id}_{i}.mp3")
 
-        # 7. 전체 텍스트 저장
+        # 6. 텍스트 파일로 전체 저장
         with open(f"static/{story_id}.txt", "w", encoding="utf-8") as f:
+            f.write(f"Structure: {structure}\n")
             f.write(f"Title: {story_title}\n\n")
             for en, ko in zip(english_lines, korean_lines):
                 f.write(f"EN: {en}\nKO: {ko}\n")
 
-        # 8. 자동 저장 (DB)
+        # 7. DB에 저장
         from app.models import Story, db
         story = Story(
             id=story_id,
@@ -387,10 +411,14 @@ def generate_all():
         db.session.add(story)
         db.session.commit()
 
-        # 9. 응답 반환
+        # 디버깅 출력
+        print(f"[DEBUG] Selected Structure: {structure}")
+
+        # 8. API 응답 반환
         return jsonify({
             "id": story_id,
             "title": story_title,
+            "structure": structure,
             "lines": english_lines,
             "korean_lines": korean_lines,
             "image_urls": image_urls,
@@ -623,7 +651,7 @@ def hide_story(story_id):
         return jsonify({"error": "Story not found"}), 404
 
     try:
-        # 👇 현재 상태에서 반대로 바꾸기 (True → False / False → True)
+        #  현재 상태에서 반대로 바꾸기 (True → False / False → True)
         story.is_hidden = not story.is_hidden
         db.session.commit()
         return jsonify({

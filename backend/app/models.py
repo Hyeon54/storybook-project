@@ -10,5 +10,6 @@ class Story(db.Model):
     korean_lines = db.Column(db.Text, nullable=False)
     image_urls = db.Column(db.Text, nullable=False)
     audio_urls = db.Column(db.Text, nullable=False)
-    main_character_description = db.Column(db.Text, nullable=True)
+    main_character_description = db.Column(db.Text)
     is_hidden = db.Column(db.Boolean, default=False)
+    structure = db.Column(db.String(100))  # 동화 구조 컬럼

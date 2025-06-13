@@ -1,6 +1,6 @@
 <template>
   <div class="viewer bg-cover bg-center h-screen overflow-hidden relative" :style="{ backgroundImage: `url(${heroBg})` }">
-    <!-- ⬅ 내 서재로 버튼 -->
+    <!-- ← 내 서재로 버튼 -->
     <button
       @click="goToLibrary"
       @mouseover="playClickSound"
@@ -26,14 +26,20 @@
 
       <!-- 오른쪽: 텍스트 + 오디오 -->
       <div class="absolute top-[14%] right-[14%] w-[38%] h-[70%] flex flex-col justify-center text-center space-y-4 px-2">
-        <h1 v-if="currentPage === 0" class="text-2xl md:text-2xl font-bold text-green-800 drop-shadow font-jua">{{ title }}</h1>
+        <h1 v-if="currentPage === 0" class="text-xl md:text-2xl font-bold text-green-800 drop-shadow font-jua break-words">
+          {{ title }}
+        </h1>
+
         <div v-else>
-          <p class="text-xl md:text-2xl font-semibold text-gray-800 mb-2 font-jua">
+          <!-- ✅ 수정1: 글씨 크기 살짝 줄이고 break-words 추가 -->
+          <p class="text-lg md:text-xl font-semibold text-gray-800 mb-2 font-jua break-words">
             {{ englishLines[currentPage - 1] }}
           </p>
-          <p class="text-xl md:text-2xl text-gray-600 font-jua">
+
+          <p class="text-lg md:text-xl text-gray-600 font-jua break-words">
             {{ koreanLines[currentPage - 1] }}
           </p>
+
           <button @click="playAudio" class="mt-2 text-blue-700 hover:underline nav-btn">🎧 오디오 듣기</button>
         </div>
       </div>

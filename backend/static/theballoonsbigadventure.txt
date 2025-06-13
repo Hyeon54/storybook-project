@@ -1,0 +1,21 @@
+Structure: Beginning-Middle-End (Story arc)
+Title: The Balloon's Big Adventure
+
+EN: A little balloon floats in the sky.
+KO: 작은 풍선이 하늘에 떠 있어요.
+EN: It sees a bird and waves hello.
+KO: 풍선이 새를 보고 인사를 해요.
+EN: The bird pecks the balloon gently.
+KO: 새가 풍선을 살짝 쪼아요.
+EN: They play hide and seek in the clouds.
+KO: 그들은 구름 속에서 숨바꼭질을 해요.
+EN: The balloon hides behind a big cloud.
+KO: 풍선이 큰 구름 뒤에 숨어요.
+EN: The bird looks here and there.
+KO: 새가 여기저기를 봐요.
+EN: It can't find the balloon anywhere.
+KO: 새는 풍선을 어디에서도 찾을 수 없어요.
+EN: Suddenly, the balloon jumps out!
+KO: 갑자기, 풍선이 튀어나와요!
+EN: "Here I am!" the balloon giggles.
+KO: "여기 있어요!" 풍선이 웃으며 말해요.

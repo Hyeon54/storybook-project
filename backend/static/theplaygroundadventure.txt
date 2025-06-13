@@ -1,0 +1,20 @@
+Title: The Playground Adventure
+
+EN: I go to the playground every day.
+KO: 저는 매일 놀이터에 가요.
+EN: Here is the big red slide.
+KO: 여기 큰 빨간 미끄럼틀이 있어요.
+EN: Here is the merry-go-round spinning fast.
+KO: 여기 빠르게 도는 회전목마가 있어요.
+EN: Here is the swing flying high.
+KO: 여기 높이 날아가는 그네가 있어요.
+EN: Here is the sandbox with tiny trucks.
+KO: 여기 작은 트럭이 있는 모래 상자가 있어요.
+EN: I like climbing on the jungle gym.
+KO: 저는 정글 짐을 타는 것을 좋아해요.
+EN: I like digging in the sand.
+KO: 저는 모래를 파는 것을 좋아해요.
+EN: Today, I make a big sandcastle.
+KO: 오늘, 저는 큰 모래성을 만들어요.
+EN: Surprise! A squirrel comes to play too.
+KO: 깜짝 놀랐어요! 다람쥐도 놀러 왔어요.
