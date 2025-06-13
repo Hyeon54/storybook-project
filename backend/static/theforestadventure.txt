@@ -1,0 +1,21 @@
+Structure: Beginning-Middle-End (Story arc)
+Title: The Forest Adventure
+
+EN: A small rabbit finds a big forest.
+KO: 작은 토끼가 큰 숲을 발견해요.
+EN: It sees a colorful bird.
+KO: 그것은 색깔이 다양한 새를 봐요.
+EN: The bird sings beautifully.
+KO: 새는 아름답게 노래해요.
+EN: Rabbit listens and smiles.
+KO: 토끼는 듣고 미소 짓습니다.
+EN: It starts to rain softly.
+KO: 부드럽게 비가 내려요.
+EN: They find a big leaf for shelter.
+KO: 그들은 피난처로 큰 잎을 찾아요.
+EN: The rain stops, the sun shines.
+KO: 비가 그치고, 햇빛이 비쳐요.
+EN: Rabbit and bird dance happily.
+KO: 토끼와 새는 행복하게 춤춰요.
+EN: The forest is their new playground!
+KO: 숲은 그들의 새 놀이터가 돼요!

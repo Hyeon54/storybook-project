@@ -232,71 +232,71 @@ def generate_all():
     try:
         # 1. 프롬프트 구성 (최종 완전판)
         prompt = f"""
-        Please translate this Korean word into English and use it as the topic: "{keyword}"
+Please translate this Korean word into English and use it as the topic: "{keyword}"
 
-        Write a short story for young children (ages 3–6).
-        Then, randomly choose **one** of the following three story structures.
-        Make sure each structure has an **equal chance of being selected (1/3 probability each)**.
-        Avoid always choosing the same type.
+Write a short story for young children (ages 3–6).
+Then, randomly choose **one** of the following three story structures.
+Make sure each structure has an **equal chance of being selected (1/3 probability each)**.
+Avoid always choosing the same type.
 
-        1. **Repetition Structure**  
-        - Use a repetitive sentence pattern.  
-        - You may choose patterns like “Wow, look at...”, “It is...”, “Here is...”, “I like...”, or others.  
-        - Avoid using the same pattern every time.  
-        - Keep the structure similar for the first 8 sentences.  
-        - In the 9th sentence, add a fun twist or surprise.
+1. **Repetition Structure**  
+- Use a repetitive sentence pattern.  
+- You may choose patterns like “It is...”, “Here is...”, “I like...”, or others.  
+- Avoid using the same pattern every time.  
+- Keep the structure similar for the first 8 sentences.  
+- In the 9th sentence, add a fun twist or surprise.
 
-        2. **Question + Answer Structure**  
-        - Use alternating questions and answers (e.g., “What is it?” / “It is a frog.”)  
-        - Keep the main character or object consistent.  
-        - Make the 9th sentence unexpected or humorous.
+2. **Question + Answer Structure**  
+- Use alternating questions and answers (e.g., “What is it?” / “It is a frog.”)  
+- Keep the main character or object consistent.  
+- For the 9th sentence, end with a fun or surprising closing statement (not a question, but a final statement).
 
-        3. **Beginning-Middle-End (Story arc)**  
-        - Use a simple plot with one character.  
-        - Include a beginning (situation), middle (event), and end (happy or funny ending).  
-        - Still use simple and short sentences (A1-level).
+3. **Beginning-Middle-End (Story arc)**  
+- Use a simple plot with one character.  
+- Include a beginning (situation), middle (event), and end (happy or funny ending).  
+- Still use simple and short sentences (A1-level).
 
-        Character Guidelines:  
-        - The main character can be a human, animal, or nature-inspired object.  
-        - Do not use specific names like Tom or Anna.  
-        - Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).  
-        - Alternatively, use “I” or “you” as the narrator.
+Character Guidelines:  
+- The main character can be a human, animal, or nature-inspired object.  
+- Do not use specific names like Tom or Anna.  
+- Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).  
+- Alternatively, use “I” or “you” as the narrator.
 
-        Story Requirements:  
-        - Be exactly **9 short sentences**.  
-        - Use short sentences (6 to 12 words).  
-        - Use only **simple present tense**.  
-        - Avoid classic openings like 'Once upon a time'.  
-        - Use **A1-level English**, very easy to understand.  
-        - Be fun, imaginative, and happy.  
-        - After the story, add a short description of the main character (1–2 sentences).
+Story Requirements:  
+- Be exactly **9 short sentences**.  
+- Use short sentences (6 to 12 words).  
+- Use only **simple present tense**.  
+- Avoid classic openings like 'Once upon a time'.  
+- Use **A1-level English**, very easy to understand.  
+- Be fun, imaginative, and happy.  
+- After the story, add a short description of the main character (1–2 sentences).
 
-        For each English sentence, also add its Korean translation.  
-        Each Korean sentence must be translated into polite informal speech ("해요체").
+For each English sentence, also add its Korean translation.  
+Each Korean sentence must be translated into polite informal speech ("해요체").
 
-        At the beginning of your output, print the selected structure in the following format:  
-        Structure: [Structure Name]
+At the beginning of your output, print the selected structure in the following format:  
+Structure: [Structure Name]
 
-        For example:  
-        Structure: Repetition Structure
-        Structure: Question + Answer Structure
-        Structure: Beginning-Middle-End (Story arc)
+For example:  
+Structure: Repetition Structure
+Structure: Question + Answer Structure
+Structure: Beginning-Middle-End (Story arc)
 
-        Do not explain your choice or translation.  
-        Only return the story in the following format:
+Do not explain your choice or translation.  
+Only return the story in the following format:
 
-        Format:  
-        Structure: [Structure Name]  
-        Title: [story title]
+Format:  
+Structure: [Structure Name]  
+Title: [story title]
 
-        EN: [English sentence 1]  
-        KO: [Korean sentence 1]  
-        ...  
-        EN: [English sentence 9]  
-        KO: [Korean sentence 9]  
+EN: [English sentence 1]  
+KO: [Korean sentence 1]  
+...  
+EN: [English sentence 9]  
+KO: [Korean sentence 9]  
 
-        Main Character Description:  
-        [main character description here]
+Main Character Description:  
+[main character description here]
         """
 
         # 2. GPT 호출
@@ -406,7 +406,8 @@ def generate_all():
             korean_lines="\n".join(korean_lines),
             image_urls="\n".join(image_urls),
             audio_urls="\n".join(audio_urls),
-            main_character_description=main_character_description
+            main_character_description=main_character_description,
+            structure=structure
         )
         db.session.add(story)
         db.session.commit()
@@ -527,6 +528,7 @@ def get_story_by_id(story_id):
         return jsonify({
             "id": story.id,
             "title": story.title,
+            "structure": story.structure,  # structure 반환 추가!
             "english_lines": english_lines,
             "korean_lines": korean_lines,
             "image_urls": image_urls,
@@ -609,7 +611,8 @@ def save_story():
             korean_lines="\n".join(data["korean_lines"]),
             image_urls="\n".join(data["image_urls"]),
             audio_urls="\n".join(data["audio_urls"]),
-            main_character_description=data.get("main_character_description", "")
+            main_character_description=data.get("main_character_description", ""),
+            structure=data.get("structure", "")  # structure 
         )
         db.session.add(story)
         db.session.commit()

@@ -1,0 +1,21 @@
+Structure: Question + Answer Structure
+Title: The Summer Sun's Day Out
+
+EN: What is bright and warm up in the sky?
+KO: 하늘에 있는 밝고 따뜻한 것은 무엇인가요?
+EN: It is the summer sun.
+KO: 그것은 여름 햇살이에요.
+EN: Does the summer sun stay still all day?
+KO: 여름 햇살은 하루 종일 가만히 있나요?
+EN: No, it moves across the sky.
+KO: 아니요, 하늘을 가로질러 움직여요.
+EN: What does the summer sun see below?
+KO: 여름 햇살은 아래에서 무엇을 보나요?
+EN: It sees children playing in the park.
+KO: 아이들이 공원에서 놀고 있는 것을 봐요.
+EN: What do the children do when they see the sun?
+KO: 아이들은 햇살을 볼 때 무엇을 하나요?
+EN: They laugh, play, and shout, "Hello, sun!"
+KO: 웃고, 놀고, "안녕, 해님!" 하고 소리쳐요.
+EN: And the summer sun shines even brighter.
+KO: 그리고 여름 햇살은 더 밝게 빛나요.

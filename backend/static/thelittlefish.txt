@@ -1,0 +1,21 @@
+Structure: Question + Answer Structure
+Title: The Little Fish
+
+EN: What do you see in the pond?
+KO: 연못에서 무엇을 보세요?
+EN: I see a little fish swimming.
+KO: 작은 물고기가 헤엄치고 있어요.
+EN: What color is the little fish?
+KO: 작은 물고기는 어떤 색깔이에요?
+EN: The little fish is bright orange.
+KO: 물고기는 밝은 오렌지색이에요.
+EN: Does the little fish have friends?
+KO: 작은 물고기에게 친구들이 있나요?
+EN: Yes, the little fish has many friends!
+KO: 네, 작은 물고기에게 많은 친구들이 있어요!
+EN: What are they doing now?
+KO: 그들은 지금 무엇을 하고 있나요?
+EN: They are playing hide and seek in the water.
+KO: 그들은 물속에서 숨바꼭질을 하고 있어요.
+EN: Can fish play hide and seek?
+KO: 물고기들이 숨바꼭질을 할 수 있나요?
