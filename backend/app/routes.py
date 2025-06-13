@@ -42,7 +42,7 @@ Avoid always choosing the same type.
 
 1. **Repetition Structure**  
 - Use a repetitive sentence pattern.  
-- You may choose patterns like “Wow, look at...”, “It is...”, “Here is...”, “I like...”, or others.  
+- You may choose patterns like “It is...”, “Here is...”, “I like...”, or others.  
 - Avoid using the same pattern every time.  
 - Keep the structure similar for the first 8 sentences.  
 - In the 9th sentence, add a fun twist or surprise.
@@ -50,7 +50,7 @@ Avoid always choosing the same type.
 2. **Question + Answer Structure**  
 - Use alternating questions and answers (e.g., “What is it?” / “It is a frog.”)  
 - Keep the main character or object consistent.  
-- Make the 9th sentence unexpected or humorous.
+- For the 9th sentence, end with a fun or surprising closing statement (not a question, but a final statement).
 
 3. **Beginning-Middle-End (Story arc)**  
 - Use a simple plot with one character.  
@@ -60,7 +60,7 @@ Avoid always choosing the same type.
 Character Guidelines:  
 - The main character can be a human, animal, or nature-inspired object.  
 - Do not use specific names like Tom or Anna.  
-- Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).  
+- Use generic descriptions instead (e.g. a small cat, a playful sun, a girl, a boy).  
 - Alternatively, use “I” or “you” as the narrator.
 
 Story Requirements:  
@@ -70,7 +70,7 @@ Story Requirements:
 - Avoid classic openings like 'Once upon a time'.  
 - Use **A1-level English**, very easy to understand.  
 - Be fun, imaginative, and happy.  
-- After the story, add a short description of the main character (1–2 sentences).
+- After the story, ALWAYS add a short description of the main character (1–2 sentences). Do not leave it blank. Write the description directly after the colon on the same line.
 
 For each English sentence, also add its Korean translation.  
 Each Korean sentence must be translated into polite informal speech ("해요체").
@@ -98,7 +98,7 @@ KO: [Korean sentence 9]
 
 Main Character Description:  
 [main character description here]
-"""
+        """
 
     try:
         response = openai.ChatCompletion.create(
@@ -259,7 +259,7 @@ Avoid always choosing the same type.
 Character Guidelines:  
 - The main character can be a human, animal, or nature-inspired object.  
 - Do not use specific names like Tom or Anna.  
-- Use generic descriptions instead (e.g., a small rabbit, a playful sun, a boy).  
+- Use generic descriptions instead (e.g. a small cat, a playful sun, a girl, a boy).  
 - Alternatively, use “I” or “you” as the narrator.
 
 Story Requirements:  
@@ -269,7 +269,7 @@ Story Requirements:
 - Avoid classic openings like 'Once upon a time'.  
 - Use **A1-level English**, very easy to understand.  
 - Be fun, imaginative, and happy.  
-- After the story, add a short description of the main character (1–2 sentences).
+- After the story, ALWAYS add a short description of the main character (1–2 sentences). Do not leave it blank. Write the description directly after the colon on the same line.
 
 For each English sentence, also add its Korean translation.  
 Each Korean sentence must be translated into polite informal speech ("해요체").
