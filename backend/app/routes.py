@@ -228,7 +228,9 @@ def generate_all():
     keyword = data.get("keyword", "").strip()
     if not keyword:
         return jsonify({"error": "Keyword is required."}), 400
+    
 
+# 밑에 프롬프트 랜덤으로 뽑으라고 하지말고, random 라이브러리로 1~3숫자 중에 랜덤뽑기 하는 걸로 변경해보자 (구조를 1,2,3으로 설정하고. 어때? ㄱㅊ을뜻)
     try:
         # 1. 프롬프트 구성 (최종 완전판)
         prompt = f"""
@@ -684,3 +686,6 @@ def get_hidden_stories():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+#그냥 테스트 주석
+#######
