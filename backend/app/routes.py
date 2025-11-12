@@ -1,3 +1,7 @@
+# conda deactivate (base)가 계속 켜질 때
+# venv\Scripts\activate
+# 컨트롤 shift p 로 python:selecte interpreter로 경로확인하고
+
 #기본 라우팅 설정
 from flask import request, Blueprint, jsonify # request(요청)을 받기 위한 Flask 함수
 import os
@@ -102,14 +106,16 @@ Main Character Description:
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4-turbo",
+            model="gpt-4-turbo", # 모델명
+            # system 모델에게 숙지시켜놓을 대전체, content 질문들어가는곳
+            # user 요청 보냄
             messages=[
                 {"role": "system", "content": "You are a creative story writer for children."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.8
+            temperature=0.8 # 창의적 조절 0~2 디폴트0.8
         )
-
+        # response는 리스트 형태임. content(응답텍스트)까지 접근
         story = response['choices'][0]['message']['content']
 
         # 구조명 파싱
@@ -307,7 +313,7 @@ Main Character Description:
             messages=[
                 {"role": "system", "content": "You are a creative story writer for children."},
                 {"role": "user", "content": prompt}
-            ],
+            ], # system 프롬프트 / user 프롬프트
             temperature=0.8
         )
 
@@ -687,5 +693,32 @@ def get_hidden_stories():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-#그냥 테스트 주석
-#######
+
+#==============================================================#
+# vocab 저장 API
+@main.route("/vocab/save", methods=["POST"])
+def save_vocabulary():
+    from flask import request, jsonify
+    from app.models import db, Vocabulary
+
+    data = request.get_json()
+    words = data.get("words", [])  # [{"word_en": "...", "word_ko": "...", "story_id": "..."}]
+
+    if not words:
+        return jsonify({"error": "No words provided"}), 400
+
+    try:
+        for word in words:
+            vocab = Vocabulary(
+                story_id=word["story_id"],
+                word_en=word["word_en"],
+                word_ko=word.get("word_ko", None)
+            )
+            db.session.add(vocab)
+
+        db.session.commit()
+        return jsonify({"message": "Vocabulary saved successfully"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500

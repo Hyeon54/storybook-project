@@ -13,3 +13,11 @@ class Story(db.Model):
     main_character_description = db.Column(db.Text)
     is_hidden = db.Column(db.Boolean, default=False)
     structure = db.Column(db.String(100))  # 동화 구조 컬럼
+
+
+class Vocabulary(db.Model):
+    __tablename__ = "vocabulary"
+    id = db.Column(db.Integer, primary_key=True)
+    story_id = db.Column(db.String(100), nullable=False)
+    word_en = db.Column(db.String(100), nullable=False)
+    word_ko = db.Column(db.String(100), nullable=True)
