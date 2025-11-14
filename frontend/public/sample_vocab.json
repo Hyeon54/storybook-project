@@ -1,0 +1,44 @@
+{
+  "words": [
+    {
+      "word_en": "puppy",
+      "word_ko": "강아지"
+    },
+    {
+      "word_en": "tail",
+      "word_ko": "꼬리"
+    },
+    {
+      "word_en": "leaf",
+      "word_ko": "낙엽"
+    },
+    {
+      "word_en": "bird",
+      "word_ko": "새"
+    },
+    {
+      "word_en": "puddle",
+      "word_ko": "웅덩이"
+    },
+    {
+      "word_en": "flower",
+      "word_ko": "꽃"
+    },
+    {
+      "word_en": "paw",
+      "word_ko": "발"
+    },
+    {
+      "word_en": "sleep",
+      "word_ko": "잠"
+    },
+    {
+      "word_en": "dream",
+      "word_ko": "꿈"
+    },
+    {
+      "word_en": "big",
+      "word_ko": "큰"
+    }
+  ]
+}

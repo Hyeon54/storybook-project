@@ -18,6 +18,8 @@
       숨긴 목록 보기
     </button>
 
+
+
     <!-- 서재 위 문구 -->
     <div class="shelf-label">📚 나의 동화 서재</div>
 
@@ -39,6 +41,8 @@
           <p class="book-title">{{ story.title }}</p>
           <!-- 👁️ 숨기기 버튼 -->
           <button class="hide-btn" @click.stop="toggleHide(story.id)">👁️ 숨기기</button>
+          <!-- 단어장 버튼 -->
+          <button class="vocab-btn" @click.stop="goToVocab(story.id)">📖 단어장</button>
         </div>
       </div>
     </div>
@@ -118,12 +122,31 @@ const toggleHide = async (id) => {
   }
 };
 
+// 단어장으로가는 함수
+const goToVocab = (id) => {
+  playClickSound();
+  router.push(`/vocab/${id}`);
+};
+
 onMounted(async () => {
   try {
     const res = await axios.get("http://127.0.0.1:5000/stories");
     stories.value = res.data.stories;
   } catch (err) {
-    error.value = "동화 목록을 불러오지 못했어요 😢";
+    // DB 연결 안 되면 sample_story.json 불러오기
+    console.warn("서버 연결 실패, sample_story.json 불러오는 중");
+    try {
+      const sample = await fetch("/sample_story.json").then((r) => r.json());
+      stories.value = [
+        {
+          id: "sample",
+          title: sample.title,
+          cover_url: sample.image_urls[0] // 첫 번째 이미지
+        }
+      ];
+    } catch (jsonErr) {
+      error.value = "서재를 불러오는 데 실패했어요 😢";
+    }
   } finally {
     loading.value = false;
   }

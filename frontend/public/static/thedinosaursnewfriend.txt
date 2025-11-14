@@ -1,0 +1,21 @@
+Structure: Beginning-Middle-End (Story arc)
+Title: The Dinosaur's New Friend
+
+EN: A small dinosaur lives in a large forest.
+KO: 작은 공룡이 큰 숲에 살아요.
+EN: One day, it hears a strange noise.
+KO: 어느 날, 이상한 소리를 들어요.
+EN: It looks around but sees nothing.
+KO: 주위를 둘러보지만 아무것도 보이지 않아요.
+EN: The noise comes again, louder this time.
+KO: 소리가 다시 나고, 이번에는 더 크게 들려요.
+EN: The small dinosaur follows the sound.
+KO: 작은 공룡이 소리를 따라가요.
+EN: It finds a tiny bird trapped under a leaf.
+KO: 잎사귀 아래에 갇힌 작은 새를 발견해요.
+EN: The dinosaur gently frees the bird.
+KO: 공룡이 새를 조심스럽게 구해줘요.
+EN: The bird chirps happily and flies around the dinosaur.
+KO: 새가 기쁘게 지저귀며 공룡 주위를 날아요.
+EN: They become great friends and play each day.
+KO: 그들은 훌륭한 친구가 되어 매일 놀아요.

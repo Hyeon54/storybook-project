@@ -1,0 +1,91 @@
+{
+  "title": "The Little Puppy's Big Day",
+  "english_lines": [
+    "I see a small puppy.",
+    "I see a small puppy wagging its tail.",
+    "I see a small puppy chasing a leaf.",
+    "I see a small puppy barking at a bird.",
+    "I see a small puppy jumping over a puddle.",
+    "I see a small puppy sniffing a flower.",
+    "I see a small puppy licking its paws.",
+    "I see a small puppy falling asleep.",
+    "I see a small puppy dreaming of being a big dog."
+  ],
+  "korean_lines": [
+    "작은 강아지를 봐요.",
+    "꼬리를 흔드는 작은 강아지를 봐요.",
+    "낙엽을 쫓는 작은 강아지를 봐요.",
+    "새에게 짖는 작은 강아지를 봐요.",
+    "웅덩이를 뛰어넘는 작은 강아지를 봐요.",
+    "꽃을 맡는 작은 강아지를 봐요.",
+    "발을 핥는 작은 강아지를 봐요.",
+    "잠이 드는 작은 강아지를 봐요.",
+    "큰 개가 되는 꿈을 꾸는 작은 강아지를 봐요."
+  ],
+  "image_urls": [
+    "/static/thelittlepuppysbigday_0.png",
+    "/static/thelittlepuppysbigday_1.png",
+    "/static/thelittlepuppysbigday_2.png",
+    "/static/thelittlepuppysbigday_3.png",
+    "/static/thelittlepuppysbigday_4.png",
+    "/static/thelittlepuppysbigday_5.png",
+    "/static/thelittlepuppysbigday_6.png",
+    "/static/thelittlepuppysbigday_7.png",
+    "/static/thelittlepuppysbigday_8.png",
+    "/static/thelittlepuppysbigday_9.png"
+  ],
+  "audio_urls": [
+    "/static/thelittlepuppysbigday_0.mp3",
+    "/static/thelittlepuppysbigday_1.mp3",
+    "/static/thelittlepuppysbigday_2.mp3",
+    "/static/thelittlepuppysbigday_3.mp3",
+    "/static/thelittlepuppysbigday_4.mp3",
+    "/static/thelittlepuppysbigday_5.mp3",
+    "/static/thelittlepuppysbigday_6.mp3",
+    "/static/thelittlepuppysbigday_7.mp3",
+    "/static/thelittlepuppysbigday_8.mp3",
+    "/static/thelittlepuppysbigday_9.mp3"
+  ],
+  "vocabulary": [
+    {
+      "word_en": "puppy",
+      "word_ko": "강아지"
+    },
+    {
+      "word_en": "tail",
+      "word_ko": "꼬리"
+    },
+    {
+      "word_en": "leaf",
+      "word_ko": "낙엽"
+    },
+    {
+      "word_en": "bird",
+      "word_ko": "새"
+    },
+    {
+      "word_en": "puddle",
+      "word_ko": "웅덩이"
+    },
+    {
+      "word_en": "flower",
+      "word_ko": "꽃"
+    },
+    {
+      "word_en": "paw",
+      "word_ko": "발"
+    },
+    {
+      "word_en": "sleep",
+      "word_ko": "잠"
+    },
+    {
+      "word_en": "dream",
+      "word_ko": "꿈"
+    },
+    {
+      "word_en": "big",
+      "word_ko": "큰"
+    }
+  ]
+}

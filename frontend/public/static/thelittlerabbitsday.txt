@@ -1,0 +1,21 @@
+Structure: Repetition Structure
+Title: The Little Rabbit's Day
+
+EN: Here is a small rabbit waking up.
+KO: 여기 작은 토끼가 일어나고 있어요.
+EN: Here is the small rabbit eating carrots.
+KO: 여기 작은 토끼가 당근을 먹고 있어요.
+EN: Here is the small rabbit hopping around.
+KO: 여기 작은 토끼가 뛰어다니고 있어요.
+EN: Here is the small rabbit meeting a bird.
+KO: 여기 작은 토끼가 새를 만나고 있어요.
+EN: Here is the small rabbit sniffing flowers.
+KO: 여기 작은 토끼가 꽃을 맡고 있어요.
+EN: Here is the small rabbit playing with leaves.
+KO: 여기 작은 토끼가 나뭇잎과 놀고 있어요.
+EN: Here is the small rabbit watching clouds.
+KO: 여기 작은 토끼가 구름을 보고 있어요.
+EN: Here is the small rabbit feeling sleepy.
+KO: 여기 졸린 토끼가 있어요.
+EN: Here is the small rabbit dreaming of flying.
+KO: 여기 작은 토끼가 날고 있는 꿈을 꾸고 있어요.

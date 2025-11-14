@@ -549,62 +549,6 @@ def get_story_by_id(story_id):
         return jsonify({"error": "Failed to read story from DB"}), 500
 
 
-
-# @main.route("/stories/<story_id>", methods=["GET"])
-# def get_story_by_id(story_id):
-#     import os
-#     from flask import jsonify
-    
-#     # 1. 경로 구성
-#     base_dir = os.path.join(os.path.dirname(__file__), "..")
-#     static_path = os.path.join(base_dir, "static")
-#     txt_path = os.path.join(static_path, f"{story_id}.txt")
-
-#     # 2. 디버깅 출력
-#     print(f"[DEBUG] 요청된 story_id: {story_id}")
-#     print(f"[DEBUG] TXT 경로: {txt_path} | 존재함? {os.path.exists(txt_path)}")
-
-#     if not os.path.exists(txt_path):
-#         return jsonify({"error": "Story not found"}), 404
-
-#     try:
-#         # 3. 텍스트 파일 읽기
-#         with open(txt_path, "r", encoding="utf-8") as f:
-#             content = f.read()
-
-#         lines = content.strip().split("\n")
-#         title_line = lines[0].strip()
-#         title = title_line.replace("Title:", "").strip()
-
-#         english_lines = []
-#         korean_lines = []
-
-#         for line in lines[1:]:
-#             line = line.strip()
-#             if line.startswith("EN:"):
-#                 english_lines.append(line.replace("EN:", "").strip())
-#             elif line.startswith("KO:"):
-#                 korean_lines.append(line.replace("KO:", "").strip())
-
-#         # 4. 이미지/오디오 URL 리스트 구성
-#         image_urls = [f"/static/{story_id}_{i}.png" for i in range(10)]
-#         audio_urls = [f"/static/{story_id}_{i}.mp3" for i in range(10)]
-
-#         # 5. 응답 반환
-#         return jsonify({
-#             "id": story_id,
-#             "title": title,
-#             "english_lines": english_lines,
-#             "korean_lines": korean_lines,
-#             "image_urls": image_urls,
-#             "audio_urls": audio_urls
-#         })
-
-#     except Exception as e:
-#         print("[ERROR]", str(e))
-#         return jsonify({"error": "Failed to read story"}), 500
-  
-#################################################################
 # /stories/save - 동화 저장 API  (/generate로 생성된 동화를 MySQL DB에 저장)
 @main.route("/stories/save", methods=["POST"])
 def save_story():
@@ -694,31 +638,182 @@ def get_hidden_stories():
         return jsonify({"error": str(e)}), 500
     
 
-#==============================================================#
-# vocab 저장 API
+
+# ==============================================================
+# 단어장 저장 API
+# ==============================================================
+
 @main.route("/vocab/save", methods=["POST"])
 def save_vocabulary():
-    from flask import request, jsonify
     from app.models import db, Vocabulary
-
     data = request.get_json()
-    words = data.get("words", [])  # [{"word_en": "...", "word_ko": "...", "story_id": "..."}]
 
-    if not words:
-        return jsonify({"error": "No words provided"}), 400
+    story_id = data.get("story_id")
+    words = data.get("words", [])
+
+    if not story_id:
+        return jsonify({"error": "Missing 'story_id'"}), 400
 
     try:
+        # 기존 데이터 삭제 후 → 새로 저장(덮어쓰기)
+        Vocabulary.query.filter_by(story_id=story_id).delete()
+
         for word in words:
             vocab = Vocabulary(
-                story_id=word["story_id"],
-                word_en=word["word_en"],
-                word_ko=word.get("word_ko", None)
+                story_id=story_id,
+                word_en=word.get("word_en"),
+                word_ko=word.get("word_ko")
             )
             db.session.add(vocab)
 
         db.session.commit()
-        return jsonify({"message": "Vocabulary saved successfully"}), 201
+        return jsonify({"success": True})
 
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
+
+
+# ==============================================================
+# 단어장 조회 API (GET)
+# ==============================================================
+
+@main.route("/vocab/<story_id>", methods=["GET"])
+def get_vocab(story_id):
+    from app.models import Vocabulary
+
+    vocab_list = Vocabulary.query.filter_by(story_id=story_id).all()
+
+    return jsonify({
+        "words": [
+            {"word_en": v.word_en, "word_ko": v.word_ko}
+            for v in vocab_list
+        ]
+    })
+
+
+
+# ==============================================================
+# 자동 단어 추출 + GPT 번역 + DB 저장 API
+# ==============================================================
+import re
+import json
+
+def extract_json_array(text):
+    """GPT 응답에서 JSON 배열을 찾는 안전한 추출기."""
+    # 코드블럭 제거
+    text = text.replace("```json", "").replace("```", "").strip()
+
+    # 객체 리스트 [{...}, {...}]
+    obj_match = re.search(r'\[\s*{.*?}\s*\]', text, re.DOTALL)
+    if obj_match:
+        return obj_match.group(0), "object"
+
+    # 문자열 리스트 ["a", "b", ...]
+    str_match = re.search(r'\[\s*"[^"]*"(?:\s*,\s*"[^"]*")*\s*\]', text, re.DOTALL)
+    if str_match:
+        return str_match.group(0), "string"
+
+    raise ValueError("JSON array not found in GPT reply")
+
+
+@main.route("/vocab/auto_generate/<story_id>", methods=["POST"])
+def auto_generate_vocab(story_id):
+    from app.models import Story, Vocabulary, db
+    from utils.keyword_extractor import extract_keywords
+    import openai, os, json
+
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+
+    # 스토리 가져오기
+    story = Story.query.get(story_id)
+    if not story:
+        return jsonify({"error": "Story not found"}), 404
+
+    # YAKE 키워드
+    english_text = " ".join(story.english_lines.split("\n"))
+    raw_keywords = extract_keywords(english_text)
+    keywords = [kw for kw in raw_keywords if len(kw.split()) == 1][:10]
+
+    if not keywords:
+        return jsonify({"error": "No valid keywords extracted"}), 500
+
+    # GPT 프롬프트
+    prompt = f"""
+Translate the following English words into Korean.
+Return ONLY a valid JSON array. No code blocks.
+
+English words:
+{keywords}
+
+Return format example ONLY:
+[
+  {{"en": "word", "ko": "뜻"}}
+]
+"""
+
+    try:
+        res = openai.ChatCompletion.create(
+            model="gpt-4-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2
+        )
+
+        gpt_reply = res["choices"][0]["message"]["content"].strip()
+
+        # JSON 배열 추출
+        json_str, mode = extract_json_array(gpt_reply)
+
+        if mode == "object":
+            # 정상적인 JSON 객체 리스트
+            translated_list = json.loads(json_str)
+
+        elif mode == "string":
+            # 문자열 리스트 → 영어 키워드와 매칭하여 복원
+            ko_list = json.loads(json_str)
+            if len(ko_list) != len(keywords):
+                return jsonify({
+                    "error": "Mismatch between keywords and translations",
+                    "keywords": keywords,
+                    "korean": ko_list
+                }), 500
+
+            translated_list = [
+                {"en": keywords[i], "ko": ko_list[i]}
+                for i in range(len(keywords))
+            ]
+
+    except Exception as e:
+        return jsonify({
+            "error": f"JSON parsing failed: {str(e)}",
+            "raw_gpt_reply": gpt_reply
+        }), 500
+
+    # DB 저장
+    try:
+        Vocabulary.query.filter_by(story_id=story_id).delete()
+        for item in translated_list:
+            db.session.add(Vocabulary(
+                story_id=story_id,
+                word_en=item["en"],
+                word_ko=item["ko"]
+            ))
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Saving to DB failed: {str(e)}"}), 500
+
+    return jsonify({
+        "message": "Vocabulary auto-generated and saved successfully",
+        "keywords": keywords,
+        "words": translated_list
+    }), 201
+
+#---------------#
+# cd backend
+# venv\Scripts\activate
+# python run.py
+
+# cd frontend
+# npm run dev

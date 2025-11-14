@@ -20,7 +20,16 @@ const routes = [
   { path: '/create', component: Create },
   { path: '/library', component: Library },
   { path: '/viewer/:id', component: Viewer }, // Viewer.vue라우터 추가 등록
-  { path: '/hidden', component: () => import('@/pages/Hidden.vue') } // Hidden.vue라우터 추가 등록
+  { path: '/hidden', component: () => import('@/pages/Hidden.vue') }, // Hidden.vue라우터 추가 등록
+  {path: '/vocab/:id',name: 'CardViewer', component: () => import('@/pages/CardViewer.vue')},
+  {
+  path: "/viewer/sample",
+  component: () => import("@/pages/Viewer.vue")
+},
+{
+  path: "/vocab/sample",
+  component: () => import("@/pages/CardViewer.vue")
+}
 ]
 
 // 위의 경로 설정을 기반으로 라우터(router)를 생성

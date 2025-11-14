@@ -1,0 +1,20 @@
+Title: The Ocean's Party
+
+EN: Here is a big, blue ocean.
+KO: 여기 크고 파란 바다예요.
+EN: Here is a small fish swimming happily.
+KO: 여기 행복하게 헤엄치는 작은 물고기예요.
+EN: Here is a playful dolphin jumping high.
+KO: 여기 높이 뛰어오르는 장난꾸러기 돌고래예요.
+EN: Here is a slow turtle floating by.
+KO: 여기 천천히 떠다니는 느린 거북이예요.
+EN: Here is a shiny starfish resting on the sand.
+KO: 여기 모래 위에서 쉬고 있는 반짝이는 불가사리예요.
+EN: Here is a curious crab walking sideways.
+KO: 여기 옆으로 걸어가는 호기심 많은 게예요.
+EN: Here is a seagull flying above the waves.
+KO: 여기 파도 위를 날고 있는 갈매기예요.
+EN: Here is a colorful coral hiding many secrets.
+KO: 여기 많은 비밀을 숨기고 있는 색색깔의 산호예요.
+EN: Then, suddenly, everyone dances under the moonlight!
+KO: 그런데 갑자기 모두가 달빛 아래에서 춤을 춰요!

@@ -54,61 +54,98 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import axios from "axios";
-import heroBg from "@/assets/hero-background.png";
 
-const route = useRoute();
+const stories = ref([]);
+const loading = ref(true);
+const error = ref(null);
+const currentPage = ref(1);
+const itemsPerPage = 4;
 const router = useRouter();
-const storyId = route.params.id;
 
-const title = ref("");
-const englishLines = ref([]);
-const koreanLines = ref([]);
-const imageUrls = ref([]);
-const audioUrls = ref([]);
-const currentPage = ref(0);
-const isTransitioning = ref(false);
+const audio = new Audio("/sounds/click.mp3");
+function playClickSound() {
+  audio.currentTime = 0;
+  audio.play();
+}
 
-onMounted(async () => {
-  const res = await axios.get(`http://127.0.0.1:5000/stories/${storyId}`);
-  const data = res.data;
+const goHidden = () => {
+  playClickSound();
+  router.push("/hidden");
+};
 
-  title.value = data.title;
-  englishLines.value = data.english_lines;
-  koreanLines.value = data.korean_lines;
-  imageUrls.value = data.image_urls;
-  audioUrls.value = data.audio_urls;
-});
+const goHome = () => {
+  playClickSound();
+  router.push("/");
+};
 
-const prevPage = () => {
-  if (currentPage.value > 0) {
-    isTransitioning.value = true;
-    setTimeout(() => currentPage.value--, 200);
-  }
+const goToStory = (id) => {
+  playClickSound();
+  router.push(`/viewer/${id}`);
+};
+
+const goToVocab = (id) => {
+  playClickSound();
+  router.push(`/vocab/${id}`);
 };
 
 const nextPage = () => {
-  if (currentPage.value < 9) {
-    isTransitioning.value = true;
-    setTimeout(() => currentPage.value++, 200);
+  if (currentPage.value < totalPages.value) {
+    playClickSound();
+    currentPage.value++;
   }
 };
 
-const playAudio = () => {
-  const audio = new Audio(`http://127.0.0.1:5000${audioUrls.value[currentPage.value]}`);
-  audio.play();
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    playClickSound();
+    currentPage.value--;
+  }
 };
 
-const goToLibrary = () => {
-  router.push("/library");
+const totalPages = computed(() => Math.ceil(stories.value.length / itemsPerPage));
+
+const paginatedStories = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  return stories.value.slice(start, start + itemsPerPage);
+});
+
+const toggleHide = async (id) => {
+  try {
+    await axios.post(`http://127.0.0.1:5000/stories/${id}/hide`);
+    const res = await axios.get("http://127.0.0.1:5000/stories");
+    stories.value = res.data.stories;
+  } catch (err) {
+    alert("숨기기에 실패했어요 😢");
+  }
 };
 
-const playClickSound = () => {
-  const click = new Audio("/sounds/click.mp3");
-  click.play();
-};
+// ⭐ onMounted: 서버 연결 실패 시 sample_story.json 불러오기
+onMounted(async () => {
+  try {
+    const res = await axios.get("http://127.0.0.1:5000/stories");
+    stories.value = res.data.stories;
+  } catch (err) {
+    console.warn("서버 연결 실패 → sample_story.json 불러오는 중");
+
+    try {
+      const sample = await fetch("/sample_story.json").then((r) => r.json());
+      stories.value = [
+        {
+          id: "sample",
+          title: sample.title,
+          cover_url: sample.image_urls[0]
+        }
+      ];
+    } catch (jsonErr) {
+      error.value = "서재를 불러오는 데 실패했어요 😢";
+    }
+  } finally {
+    loading.value = false;
+  }
+});
 </script>
 
 <style scoped>

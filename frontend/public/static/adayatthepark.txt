@@ -1,0 +1,20 @@
+Title: A Day at the Park
+
+EN: I go to the park today.
+KO: 오늘 저는 공원에 가요.
+EN: I see a big, green tree.
+KO: 크고 녹색 나무를 봐요.
+EN: I hear birds singing loudly.
+KO: 새들이 크게 노래하는 걸 들어요.
+EN: I smell pretty flowers all around.
+KO: 주위에 예쁜 꽃 냄새를 맡아요.
+EN: I touch the soft grass under my feet.
+KO: 발 밑의 부드러운 풀을 만져요.
+EN: I taste my yummy picnic sandwich.
+KO: 맛있는 소풍 샌드위치를 맛봐요.
+EN: I laugh with my friend at the park.
+KO: 공원에서 제 친구와 웃어요.
+EN: I watch the sun go down.
+KO: 해가 지는 걸 봐요.
+EN: Then, a squirrel joins our picnic!
+KO: 그리고 다람쥐가 우리 소풍에 합류해요!

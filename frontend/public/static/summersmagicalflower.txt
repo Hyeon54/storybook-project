@@ -1,0 +1,21 @@
+Structure: Beginning-Middle-End (Story arc)
+Title: Summer's Magical Flower
+
+EN: A small rabbit finds a colorful flower.
+KO: 작은 토끼가 색색깔의 꽃을 발견해요.
+EN: It's summer, and the sun is very bright.
+KO: 여름이고 태양이 매우 밝아요.
+EN: The rabbit wonders if the flower is magical.
+KO: 토끼는 그 꽃이 마법의 꽃인지 궁금해해요.
+EN: It touches the flower with its nose.
+KO: 토끼가 코로 꽃을 만져봐요.
+EN: Suddenly, the flower starts to glow.
+KO: 갑자기, 꽃이 빛나기 시작해요.
+EN: Colors change from red to blue to green.
+KO: 색상이 빨간색에서 파란색으로, 녹색으로 변해요.
+EN: The rabbit feels happy and dances around.
+KO: 토끼는 행복을 느끼며 주위를 춤춰요.
+EN: Now every summer, the rabbit visits the flower.
+KO: 이제 매 여름, 토끼는 그 꽃을 방문해요.
+EN: It's their special summer magic time.
+KO: 그것은 그들의 특별한 여름 마법 시간이에요.
