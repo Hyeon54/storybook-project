@@ -1,6 +1,10 @@
 # Flask 앱의 내부 설정을 정의해두는 모듈 역할
 #Flask 앱 초기화
 # app/__init__.py
+# cd backend
+# venv/Scripts/activate
+# python run.py
+
 from flask import Flask
 from flask_cors import CORS
 from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS

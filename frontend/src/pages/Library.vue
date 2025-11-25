@@ -1,6 +1,6 @@
 <template>
   <div class="library">
-    <!-- 뒤로가기 버튼 -->
+    <!-- 홈으로 버튼 -->
     <button
       @click="goHome"
       @mouseover="playClickSound"
@@ -9,16 +9,14 @@
       ← 홈으로
     </button>
 
-    <!-- 숨긴 목록 보기 버튼 // Hidden.vue로 가는 버튼 추가 -->
+    <!-- 숨긴 목록 보기 버튼 -->
     <button
       @click="goHidden"
       @mouseover="playClickSound"
-      class="goto-hidden-btn"
+      class="absolute top-6 right-6 z-50 bg-white/80 hover:bg-white text-green-800 font-jua px-5 py-2 rounded-full shadow-md transition-transform hover:scale-105 text-base md:text-lg"
     >
-      숨긴 목록 보기
+      숨긴 동화 보기
     </button>
-
-
 
     <!-- 서재 위 문구 -->
     <div class="shelf-label">📚 나의 동화 서재</div>
@@ -27,22 +25,15 @@
     <div class="shelf-container">
       <img src="@/assets/bookshelf-large.png" alt="Bookshelf" class="shelf" />
       <div class="book-wrapper">
-        <div
-          v-for="story in paginatedStories"
-          :key="story.id"
-          class="book-card"
-          @click="goToStory(story.id)"
-        >
-          <img
-            :src="`http://127.0.0.1:5000${story.cover_url}`"
-            class="book-cover"
-            alt="동화 표지"
-          />
+        <div v-for="story in paginatedStories" :key="story.id" class="book-card" @click="goToStory(story.id)">
+          <img :src="`http://127.0.0.1:5000${story.cover_url}`" class="book-cover" alt="동화 표지" />
           <p class="book-title">{{ story.title }}</p>
-          <!-- 👁️ 숨기기 버튼 -->
-          <button class="hide-btn" @click.stop="toggleHide(story.id)">👁️ 숨기기</button>
-          <!-- 단어장 버튼 -->
-          <button class="vocab-btn" @click.stop="goToVocab(story.id)">📖 단어장</button>
+
+          <!-- 버튼 가로 배치 -->
+          <div class="button-row">
+            <button class="btn hide-btn" @click.stop="toggleHide(story.id)">👁️ 숨기기</button>
+            <button class="btn vocab-btn" @click.stop="goToVocab(story.id)">📖 단어장</button>
+          </div>
         </div>
       </div>
     </div>
@@ -75,21 +66,34 @@ function playClickSound() {
   audio.currentTime = 0;
   audio.play();
 }
-// Hidden.vue로 가는 버튼 추가
+
 const goHidden = () => {
   playClickSound();
   router.push("/hidden");
 };
-
 const goHome = () => {
   playClickSound();
   router.push("/");
 };
-
 const goToStory = (id) => {
   playClickSound();
   router.push(`/viewer/${id}`);
 };
+const goToVocab = (id) => {
+  playClickSound();
+  router.push(`/vocab/${id}`);
+};
+
+const paginatedStories = computed(() => {
+  const visibleStories = stories.value.filter((s) => !s.is_hidden);
+  const start = (currentPage.value - 1) * itemsPerPage;
+  return visibleStories.slice(start, start + itemsPerPage);
+});
+
+const totalPages = computed(() => {
+  const visibleStories = stories.value.filter((s) => !s.is_hidden);
+  return Math.ceil(visibleStories.length / itemsPerPage);
+});
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
@@ -97,7 +101,6 @@ const nextPage = () => {
     currentPage.value++;
   }
 };
-
 const prevPage = () => {
   if (currentPage.value > 1) {
     playClickSound();
@@ -105,27 +108,14 @@ const prevPage = () => {
   }
 };
 
-const totalPages = computed(() => Math.ceil(stories.value.length / itemsPerPage));
-
-const paginatedStories = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  return stories.value.slice(start, start + itemsPerPage);
-});
-
 const toggleHide = async (id) => {
   try {
     await axios.post(`http://127.0.0.1:5000/stories/${id}/hide`);
-    const res = await axios.get("http://127.0.0.1:5000/stories");
-    stories.value = res.data.stories;
+    const story = stories.value.find((s) => s.id === id);
+    if (story) story.is_hidden = !story.is_hidden;
   } catch (err) {
     alert("숨기기에 실패했어요 😢");
   }
-};
-
-// 단어장으로가는 함수
-const goToVocab = (id) => {
-  playClickSound();
-  router.push(`/vocab/${id}`);
 };
 
 onMounted(async () => {
@@ -133,7 +123,6 @@ onMounted(async () => {
     const res = await axios.get("http://127.0.0.1:5000/stories");
     stories.value = res.data.stories;
   } catch (err) {
-    // DB 연결 안 되면 sample_story.json 불러오기
     console.warn("서버 연결 실패, sample_story.json 불러오는 중");
     try {
       const sample = await fetch("/sample_story.json").then((r) => r.json());
@@ -141,8 +130,8 @@ onMounted(async () => {
         {
           id: "sample",
           title: sample.title,
-          cover_url: sample.image_urls[0] // 첫 번째 이미지
-        }
+          cover_url: sample.image_urls[0],
+        },
       ];
     } catch (jsonErr) {
       error.value = "서재를 불러오는 데 실패했어요 😢";
@@ -155,43 +144,8 @@ onMounted(async () => {
 
 <style scoped>
 @import "@/assets/library-shared.css";
-.library {
-  min-height: 100vh;
-  height: 100vh;
-  background-image: url("@/assets/hero-background.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  padding: 2rem;
-  font-family: "Jua", sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  position: relative;
-  overflow: hidden;
-}
-/* // Hidden.vue로 가는 버튼 추가 */
-.goto-hidden-btn {
-  position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  background: #ffffffcc;
-  color: #2e7d32;
-  border: 2px solid #2e7d32;
-  padding: 0.5rem 1rem;
-  font-size: 0.95rem;
-  font-family: "Jua", sans-serif;
-  border-radius: 9999px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-  z-index: 50;
-}
-.goto-hidden-btn:hover {
-  background-color: #2e7d32;
-  color: white;
-}
 
+/* 서재 제목 */
 .shelf-label {
   position: absolute;
   bottom: 750px;
@@ -258,21 +212,40 @@ onMounted(async () => {
   text-align: center;
 }
 
-.hide-btn {
-  margin-top: 0.5rem;
-  background: #fff;
-  border: 2px solid #f44336;
-  color: #f44336;
+.button-row {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  margin-top: 1rem;
+}
+
+.btn {
   padding: 0.3rem 0.8rem;
   font-size: 0.9rem;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
+.hide-btn {
+  background: #fff;
+  border: 2px solid #f44336;
+  color: #f44336;
+}
 .hide-btn:hover {
   background: #ffecec;
 }
 
+.vocab-btn {
+  background: #fff;
+  border: 2px solid #2196f3;
+  color: #2196f3;
+}
+.vocab-btn:hover {
+  background: #e3f2fd;
+}
+
+/* 페이지네이션 */
 .pagination {
   position: fixed;
   bottom: 20px;

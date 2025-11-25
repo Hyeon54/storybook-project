@@ -4,9 +4,9 @@
     <button
       @click="goLibrary"
       @mouseover="playClickSound"
-      class="absolute top-6 left-6 z-50 bg-white/80 hover:bg-white text-green-800 font-jua px-5 py-2 rounded-full shadow-md transition-transform hover:scale-105 text-base md:text-lg"
+      class="absolute bottom-6 left-6 z-50 bg-white/80 hover:bg-white text-green-800 font-jua px-5 py-2 rounded-full shadow-md transition-transform hover:scale-105 text-base md:text-lg"
     >
-      ← 서재로
+      ← 뒤로가기
     </button>
 
     <!-- 제목 -->
@@ -16,18 +16,14 @@
     <div class="shelf-container">
       <img src="@/assets/bookshelf-large.png" alt="Bookshelf" class="shelf" />
       <div class="book-wrapper">
-        <div
-          v-for="story in stories"
-          :key="story.id"
-          class="book-card"
-        >
-          <img
-            :src="`http://127.0.0.1:5000${story.cover_url}`"
-            class="book-cover"
-            alt="동화 표지"
-          />
+        <div v-for="story in stories" :key="story.id" class="book-card">
+          <img :src="`http://127.0.0.1:5000${story.cover_url}`" class="book-cover" alt="동화 표지" />
           <p class="book-title">{{ story.title }}</p>
-          <button class="unhide-btn" @click="restoreStory(story.id)">↩️ 복구하기</button>
+
+          <!-- 복구하기 버튼 -->
+          <div class="button-row">
+            <button class="btn restore-btn" @click="restoreStory(story.id)">↩️ 복구하기</button>
+          </div>
         </div>
       </div>
     </div>
@@ -54,8 +50,7 @@ function playClickSound() {
 
 const restoreStory = async (id) => {
   try {
-    await axios.post(`http://127.0.0.1:5000/stories/${id}/hide`); // 숨김 상태 토글
-    // 다시 숨긴 목록을 불러오기
+    await axios.post(`http://127.0.0.1:5000/stories/${id}/hide`);
     const res = await axios.get("http://127.0.0.1:5000/stories/hidden");
     stories.value = res.data.stories;
   } catch (err) {
@@ -74,20 +69,65 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-@import "@/assets/library-shared.css";  Library.vue와 공통 스타일 분리 가능
+@import "@/assets/library-shared.css";
 
-.unhide-btn {
-  margin-top: 0.5rem;
-  background: #fff;
-  border: 2px solid #4caf50;
-  color: #4caf50;
-  padding: 0.3rem 0.8rem;
-  font-size: 0.9rem;
+/* 책 카드 버튼 레이아웃 */
+.button-row {
+  display: flex;
+  justify-content: center; /* 가운데 정렬 */
+  margin-top: 1rem;
+}
+
+/* 버튼 공통 스타일 */
+.btn {
+  padding: 0.4rem 1rem;
+  font-size: 0.95rem;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
+  border: none;
 }
-.unhide-btn:hover {
-  background: #eaffea;
+
+/* 복구 버튼 색상: 밝은 녹색 배경, 진한 녹색 글씨 */
+.restore-btn {
+  background-color: #fff;
+  color: #2e7d32;
+  border: 2px solid #2e7d32;
+}
+.restore-btn:hover {
+  background-color: #b7f0b3;
+}
+
+/* 책 카드 스타일 */
+.book-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.book-card {
+  width: 260px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.book-card:hover {
+  transform: translateY(-8px) scale(1.03);
+}
+
+.book-cover {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+}
+
+.book-title {
+  font-size: 1.2rem;
+  color: #3e3e3e;
+  text-align: center;
 }
 </style>
