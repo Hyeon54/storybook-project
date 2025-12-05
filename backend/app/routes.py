@@ -366,13 +366,17 @@ Main Character Description:
                 prompt_for_image = f"Illustration of: {text_for_page}, featuring {main_character_description}, {style_keyword}, {no_text_clause}"
 
             # DALL·E 이미지 생성
-            img_response = openai.Image.create(
-                prompt=prompt_for_image,
-                model="dall-e-3",
-                size="1024x1024",
-                quality="standard",
-                n=1
-            )
+            try:
+                img_response = openai.Image.create(
+                    prompt=prompt_for_image,
+                    model="dall-e-3",
+                    size="1024x1024",
+                    quality="standard",
+                    n=1
+                )
+            except Exception as e:
+                print(f"[ERROR] Failed to generate image {i}: {e}")
+                raise e
             img_url = img_response["data"][0]["url"]
             img_path = f"static/{story_id}_{i}.png"
             with open(img_path, "wb") as f:
@@ -388,11 +392,15 @@ Main Character Description:
                 ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
             )
             audio_config = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3)
-            audio_response = tts_client.synthesize_speech(
-                input=synthesis_input,
-                voice=voice,
-                audio_config=audio_config
-            )
+            try:
+                audio_response = tts_client.synthesize_speech(
+                    input=synthesis_input,
+                    voice=voice,
+                    audio_config=audio_config
+                )
+            except Exception as e:
+                print(f"[ERROR] Failed to generate audio {i}: {e}")
+                raise e
             audio_path = f"static/{story_id}_{i}.mp3"
             with open(audio_path, "wb") as out:
                 out.write(audio_response.audio_content)
@@ -417,6 +425,7 @@ Main Character Description:
             main_character_description=main_character_description,
             structure=structure
         )
+        print(f"[DEBUG] story_id: {story_id}, title: {story_title}")
         db.session.add(story)
         db.session.commit()
 
@@ -436,7 +445,17 @@ Main Character Description:
         })
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "error": str(e),
+            "partial": {
+                "story_id": story_id,
+                "title": story_title,
+                "image_urls": image_urls,
+                "audio_urls": audio_urls
+            }
+        }), 500
 ####################################################
 # get-latest 라우터 구현
 @main.route("/get-latest", methods=["GET"])
@@ -485,35 +504,6 @@ def get_stories():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# API역할 - static폴더 내에 저장된 동화 데이터목록(이미지 + 제목) 반환 역할
-# @main.route("/stories", methods=["GET"])
-# def get_stories():
-#     import os
-
-#     static_dir = "static"
-#     story_files = []
-
-#     for filename in os.listdir(static_dir):
-#         if filename.endswith(".txt"):
-#             base = filename.replace(".txt", "")
-#             txt_path = os.path.join(static_dir, filename)
-#             img_path = f"/static/{base}_0.png"
-
-#             # 제목 추출 (첫 줄에 "Title: ~~~" 형식)
-#             with open(txt_path, "r", encoding="utf-8") as f:
-#                 first_line = f.readline().strip()
-#                 if first_line.lower().startswith("title:"):
-#                     title = first_line.replace("Title:", "").strip()
-#                 else:
-#                     title = base
-
-#             story_files.append({
-#                 "id": base,
-#                 "title": title,
-#                 "cover_url": img_path  # 이미지 경로
-#             })
-
-#     return jsonify({"stories": story_files})
 #########################################################
 # /stories/<id> API 설계
 # 리팩터링된 /stories/<story_id> 라우터 (DB 사용)

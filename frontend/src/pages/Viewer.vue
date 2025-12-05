@@ -1,3 +1,4 @@
+<!-- -->
 <template>
   <div class="viewer bg-cover bg-center h-screen overflow-hidden relative" :style="{ backgroundImage: `url(${heroBg})` }">
     <!-- ← 내 서재로 버튼 -->
@@ -54,96 +55,84 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
+import heroBackground from "@/assets/hero-background.png";
 
-const stories = ref([]);
-const loading = ref(true);
-const error = ref(null);
-const currentPage = ref(1);
-const itemsPerPage = 4;
+const heroBg = heroBackground;
+// 현재 라우터 경로에서 :id 추출
+const route = useRoute();
 const router = useRouter();
+const storyId = route.params.id;
 
-const audio = new Audio("/sounds/click.mp3");
+// 데이터 바인딩용 변수
+const title = ref("");
+const englishLines = ref([]);
+const koreanLines = ref([]);
+const imageUrls = ref([]);
+const audioUrls = ref([]);
+const isTransitioning = ref(false);
+const currentPage = ref(0); // 0 = 표지
+
+// 버튼 클릭 효과음
+const clickAudio = new Audio("/sounds/click.mp3");
 function playClickSound() {
-  audio.currentTime = 0;
-  audio.play();
+  clickAudio.currentTime = 0;
+  clickAudio.play();
 }
 
-const goHidden = () => {
-  playClickSound();
-  router.push("/hidden");
-};
-
-const goHome = () => {
-  playClickSound();
-  router.push("/");
-};
-
-const goToStory = (id) => {
-  playClickSound();
-  router.push(`/viewer/${id}`);
-};
-
-const goToVocab = (id) => {
-  playClickSound();
-  router.push(`/vocab/${id}`);
-};
-
+// 페이지 넘기기
 const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
+  if (currentPage.value < 9) {
     playClickSound();
+    isTransitioning.value = true;
     currentPage.value++;
   }
 };
-
 const prevPage = () => {
-  if (currentPage.value > 1) {
+  if (currentPage.value > 0) {
     playClickSound();
+    isTransitioning.value = true;
     currentPage.value--;
   }
 };
 
-const totalPages = computed(() => Math.ceil(stories.value.length / itemsPerPage));
-
-const paginatedStories = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  return stories.value.slice(start, start + itemsPerPage);
-});
-
-const toggleHide = async (id) => {
-  try {
-    await axios.post(`http://127.0.0.1:5000/stories/${id}/hide`);
-    const res = await axios.get("http://127.0.0.1:5000/stories");
-    stories.value = res.data.stories;
-  } catch (err) {
-    alert("숨기기에 실패했어요 😢");
-  }
+// 오디오 재생
+const playAudio = () => {
+  const audio = new Audio(`http://127.0.0.1:5000${audioUrls.value[currentPage.value]}`);
+  audio.play();
 };
 
-// ⭐ onMounted: 서버 연결 실패 시 sample_story.json 불러오기
+// ← 내 서재로 이동
+const goToLibrary = () => {
+  playClickSound();
+  router.push("/library");
+};
+
+// 동화 불러오기 (실제 or 샘플)
 onMounted(async () => {
   try {
-    const res = await axios.get("http://127.0.0.1:5000/stories");
-    stories.value = res.data.stories;
-  } catch (err) {
-    console.warn("서버 연결 실패 → sample_story.json 불러오는 중");
-
-    try {
-      const sample = await fetch("/sample_story.json").then((r) => r.json());
-      stories.value = [
-        {
-          id: "sample",
-          title: sample.title,
-          cover_url: sample.image_urls[0]
-        }
-      ];
-    } catch (jsonErr) {
-      error.value = "서재를 불러오는 데 실패했어요 😢";
+    if (storyId === "sample" || storyId === "thelittlepuppysbigday") {
+      const res = await fetch("/sample_story.json");
+      const data = await res.json();
+      title.value = data.title;
+      englishLines.value = data.english_lines;
+      koreanLines.value = data.korean_lines;
+      imageUrls.value = data.image_urls;
+      audioUrls.value = data.audio_urls;
+    } else {
+      const res = await axios.get(`http://127.0.0.1:5000/stories/${storyId}`);
+      const data = res.data;
+      title.value = data.title;
+      englishLines.value = data.english_lines;
+      koreanLines.value = data.korean_lines;
+      imageUrls.value = data.image_urls;
+      audioUrls.value = data.audio_urls;
     }
-  } finally {
-    loading.value = false;
+  } catch (err) {
+    alert("동화를 불러오는 데 실패했어요 😢");
+    console.error(err);
   }
 });
 </script>

@@ -1,0 +1,21 @@
+Structure: Repetition Structure
+Title: The Colors of the Rainbow
+
+EN: Here is a red stripe, shining so bright.
+KO: 여기에 밝게 빛나는 빨간 줄무늬가 있어요.
+EN: Here is an orange stripe, full of delight.
+KO: 여기에 기쁨이 가득한 주황색 줄무늬가 있어요.
+EN: Here is a yellow stripe, like the sun's light.
+KO: 여기에 태양 빛처럼 노란 줄무늬가 있어요.
+EN: Here is a green stripe, fresh and right.
+KO: 여기에 신선하고 올바른 초록색 줄무늬가 있어요.
+EN: Here is a blue stripe, cool to the sight.
+KO: 여기에 시원한 파란색 줄무늬가 있어요.
+EN: Here is an indigo stripe, deep in the night.
+KO: 여기에 밤에 깊은 남색 줄무늬가 있어요.
+EN: Here is a violet stripe, a lovely sight.
+KO: 여기에 사랑스러운 보라색 줄무늬가 있어요.
+EN: These are the colors of the rainbow, so light.
+KO: 이것들은 무지개의 색깔들이에요, 아주 가볍게요.
+EN: And guess what? They form a bridge of pure joy!
+KO: 그리고 맞춰보세요! 그들은 순수한 기쁨의 다리를 만들어요!

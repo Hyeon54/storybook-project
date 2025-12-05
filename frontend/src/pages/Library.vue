@@ -32,7 +32,19 @@
           <!-- 버튼 가로 배치 -->
           <div class="button-row">
             <button class="btn hide-btn" @click.stop="toggleHide(story.id)">👁️ 숨기기</button>
-            <button class="btn vocab-btn" @click.stop="goToVocab(story.id)">📖 단어장</button>
+
+            <!-- 단어장 존재 여부에 따라 버튼 변경 -->
+            <button
+              v-if="story.has_vocab"
+              class="btn vocab-btn"
+              @click.stop="goToVocab(story.id)"
+            >📖 단어장</button>
+
+            <button
+              v-else
+              class="btn vocab-generate-btn"
+              @click.stop="generateVocab(story.id)"
+            >단어장 생성</button>
           </div>
         </div>
       </div>
@@ -118,24 +130,37 @@ const toggleHide = async (id) => {
   }
 };
 
+const generateVocab = async (storyId) => {
+  try {
+    const res = await axios.post(`http://127.0.0.1:5000/vocab/auto_generate/${storyId}`);
+    alert("단어장이 생성되었어요! 🎉");
+    // 해당 스토리에 단어장이 생겼으니 다시 불러오기
+    const story = stories.value.find((s) => s.id === storyId);
+    if (story) story.has_vocab = true;
+  } catch (err) {
+    alert("단어장 생성에 실패했어요 😢");
+    console.error(err);
+  }
+};
+
 onMounted(async () => {
   try {
     const res = await axios.get("http://127.0.0.1:5000/stories");
-    stories.value = res.data.stories;
-  } catch (err) {
-    console.warn("서버 연결 실패, sample_story.json 불러오는 중");
-    try {
-      const sample = await fetch("/sample_story.json").then((r) => r.json());
-      stories.value = [
-        {
-          id: "sample",
-          title: sample.title,
-          cover_url: sample.image_urls[0],
-        },
-      ];
-    } catch (jsonErr) {
-      error.value = "서재를 불러오는 데 실패했어요 😢";
+    const baseStories = res.data.stories;
+
+    // 각각에 대해 단어장 유무 확인
+    for (const s of baseStories) {
+      try {
+        const vocabRes = await axios.get(`http://127.0.0.1:5000/vocab/${s.id}`);
+        s.has_vocab = vocabRes.data.words.length > 0;
+      } catch (e) {
+        s.has_vocab = false;
+      }
     }
+
+    stories.value = baseStories;
+  } catch (err) {
+    // 생략...
   } finally {
     loading.value = false;
   }
@@ -244,7 +269,15 @@ onMounted(async () => {
 .vocab-btn:hover {
   background: #e3f2fd;
 }
+.vocab-generate-btn {
+  background: #fff;
+  border: 2px solid #ff9800;  /* 오렌지색 - 생성 느낌 */
+  color: #ff9800;
+}
 
+.vocab-generate-btn:hover {
+  background: #fff3e0;
+}
 /* 페이지네이션 */
 .pagination {
   position: fixed;
